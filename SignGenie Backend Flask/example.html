@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sign Language Prediction</title>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <style>
+      /* Background image and overlay */
+      body {
+        background: url('background-image.jpg') no-repeat center center fixed;
+        background-size: cover;
+        color: white;
+        position: relative;
+      }
+
+      body::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5); /* Semi-transparent dark overlay */
+        z-index: 1;
+      }
+
+      /* Ensure content stays above the overlay */
+      .container, .navbar, footer {
+        position: relative;
+        z-index: 2;
+      }
+
+      .navbar {
+        background-color: #2c3e50 !important;
+      }
+
+      .navbar-dark .navbar-brand,
+      .navbar-dark .nav-link {
+        color: white !important;
+      }
+
+      p {
+        color: #f8f9fa !important;
+      }
+
+      .btn-success {
+        background-color: #28a745;
+        border-color: #218838;
+      }
+
+      #video-container {
+        display: none; /* Initially hide webcam */
+      }
+
+      footer {
+        background-color: #2c3e50;
+        color: white !important;
+      }
+
+      footer a {
+        color: white !important;
+        text-decoration: none;
+      }
+
+      footer a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark px-3">
+      <a class="navbar-brand" href="#">Sign Language Prediction</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ml-auto">
+              <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">Live Detection</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">Dictionary</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">Settings</a></li>
+          </ul>
+      </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container text-center mt-5">
+      <h1 class="mb-3">Sign Language Recognition & Translation</h1>
+      <p class="text-muted">"The beauty of sign language is that it speaks volumes without a single sound."</p>
+      
+      <p class="lead">
+        Communication is the bridge that connects us all. For those who communicate through sign language, 
+        technology can be a powerful tool to break barriers and foster inclusivity. Our platform is designed 
+        to help translate and recognize sign language in real-time, ensuring that no voice goes unheard, 
+        even when spoken with hands.
+      </p>
+      
+      <button class="btn btn-success btn-lg mb-4" onclick="startDetection()">Start Detection</button>
+      
+      <!-- Illustration -->
+      <div class="d-flex justify-content-center">
+        <img src="sign-language-animation.gif" alt="Sign Language Animation" class="img-fluid rounded shadow-lg" width="500">
+      </div>
+
+      <!-- Webcam Section - Initially Hidden -->
+      <div id="video-container" class="mt-5">
+        <h2>Live Sign Language Detection</h2>
+        <div class="d-flex justify-content-center">
+          <img
+            id="video"
+            src="{{ url_for('video') }}"
+            class="border rounded shadow-lg"
+            width="640"
+            height="480"
+          />
+        </div>
+        <div class="mt-4">
+          <h4 class="text-success">
+            Predicted Sign: <span id="predicted_text">Waiting...</span>
+          </h4>
+          <button class="btn btn-primary mt-3" onclick="speakCurrentPrediction()">🔊 Speak Prediction</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-3 mt-5">
+      <p>&copy; 2025 Sign Language Project | <a href="#">Privacy Policy</a> | <a href="#">About</a></p>
+    </footer>
+
+    <script>
+      let lastSpokenText = ""; 
+      let currentPrediction = "Waiting..."; 
+
+      function startDetection() {
+        document.getElementById("video-container").style.display = "block"; // Show webcam feed
+      }
+
+      function speakText(text) {
+        if ("speechSynthesis" in window) {
+          let utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = "en-US"; 
+          utterance.rate = 1; 
+          speechSynthesis.speak(utterance);
+          lastSpokenText = text; 
+        } else {
+          console.warn("Text-to-Speech is not supported in this browser.");
+        }
+      }
+
+      function speakCurrentPrediction() {
+        if (currentPrediction !== "Waiting...") {
+          speakText(currentPrediction);
+        }
+      }
+
+      setInterval(function () {
+        fetch("/prediction")
+          .then((response) => response.json())
+          .then((data) => {
+            currentPrediction = data.prediction || "Waiting...";
+            document.getElementById("predicted_text").innerText = currentPrediction;
+
+            console.log("Prediction:", currentPrediction);
+            
+            if (currentPrediction !== lastSpokenText) {
+              speakText(currentPrediction);
+            }
+          })
+          .catch((error) => console.error("Error fetching prediction:", error));
+      }, 1000);
+    </script>
+  </body>
+</html>

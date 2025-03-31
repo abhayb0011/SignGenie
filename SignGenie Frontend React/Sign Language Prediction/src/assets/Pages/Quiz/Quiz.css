@@ -1,0 +1,107 @@
+.quiz-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width:100%;
+  background-color: #f8f9fa;
+  align-items: center;
+}
+
+.quiz-container {
+  text-align: center;
+  padding: 40px;
+  max-width: 600px;
+  width: 100%;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.question-section {
+  margin-bottom: 20px;
+}
+
+.question-section h2 {
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.sign-image {
+  width: 150px;
+  height: 150px;
+  margin-top: 10px;
+  border-radius: 10px;
+  border: 2px solid #007bff;
+}
+
+.video-section {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.webcam-feed {
+  width: 300px;
+  height: 200px;
+  border-radius: 10px;
+  border: 2px solid #007bff;
+}
+
+.check-btn, 
+.next-btn, 
+.start-btn, 
+.stop-btn {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 10px;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.check-btn:hover, 
+.next-btn:hover, 
+.start-btn:hover, 
+.stop-btn:hover {
+  background-color: #0056b3;
+}
+
+.feedback {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: red;
+  margin-top: 10px;
+}
+
+.prediction-text {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #007bff;
+  margin-top: 10px;
+}
+
+.detection-controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.start-btn {
+  background-color: #28a745;
+}
+
+.stop-btn {
+  background-color: #dc3545;
+}
+
+.start-btn:hover {
+  background-color: #218838;
+}
+
+.stop-btn:hover {
+  background-color: #c82333;
+}
