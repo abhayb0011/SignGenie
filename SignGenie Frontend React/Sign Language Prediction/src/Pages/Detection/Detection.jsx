@@ -26,7 +26,7 @@ const Detection = () => {
 
     if (isDetecting) {
       interval = setInterval(() => {
-        fetch("http://127.0.0.1:5000/prediction")
+        fetch("https://signgenie.onrender.com/prediction")
           .then((res) => res.json())
           .then((data) => {
             const newWord = data.prediction;
@@ -57,7 +57,7 @@ const Detection = () => {
         <div className="video-container">
           {isDetecting ? (
             <img
-              src="http://127.0.0.1:5000/video"
+              src="https://signgenie.onrender.com/video"
               alt="Live Video Stream"
               className="video-box"
             />

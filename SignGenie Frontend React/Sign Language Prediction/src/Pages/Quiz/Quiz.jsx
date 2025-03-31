@@ -18,7 +18,7 @@ const Quiz = () => {
 
   const fetchQuizQuestions = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:5000/signs");
+      const response = await fetch("https://signgenie.onrender.com/signs");
       if (!response.ok) throw new Error("Failed to fetch questions");
       const data = await response.json();
       setQuestions(data);
@@ -34,7 +34,7 @@ const Quiz = () => {
     if (isDetecting) {
       interval = setInterval(async () => {
         try {
-          const response = await fetch("http://127.0.0.1:5000/prediction", { cache: "no-store" });
+          const response = await fetch("https://signgenie.onrender.com/prediction", { cache: "no-store" });
           if (!response.ok) throw new Error("Failed to fetch prediction");
           const data = await response.json();
           if (!data || !data.prediction) throw new Error("Invalid response format");
@@ -100,7 +100,7 @@ const Quiz = () => {
                 <span>{questions[currentQuestion].sign_name}</span>
               </h2>
               <img
-                src={`http://127.0.0.1:5000/${questions[currentQuestion].image_url}`}
+                src={`https://signgenie.onrender.com/${questions[currentQuestion].image_url}`}
                 alt="Sign Example"
                 className="sign-image"
               />
@@ -109,7 +109,7 @@ const Quiz = () => {
             <div className="video-section">
               {isDetecting ? (
                 <img
-                  src="http://127.0.0.1:5000/video"
+                  src="https://signgenie.onrender.com/video"
                   alt="Live Video Stream"
                   className="webcam-feed"
                 />
