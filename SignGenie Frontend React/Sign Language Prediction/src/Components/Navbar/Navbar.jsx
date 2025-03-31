@@ -4,7 +4,7 @@ import "./Navbar.css";
 import CustomButton from "../CustomButton/CustomButton"; 
 import MenuIcon from "@mui/icons-material/Menu"; 
 import HomeIcon from "@mui/icons-material/Home"; 
-import logo from "../../assets/Images/logo_Sign_Language_Prediction.jpg";
+import logo from "../../assets/Images/logo Sign Language Prediction.jpg";
 
 
 const Navbar = () => {
