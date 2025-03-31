@@ -1,5 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import facebookLogo from "../../assets/Images/facebook logo.webp";
+import instaLogo from "../../assets/Images/insta.webp";
+import facebookLogo from "../../assets/Images/facebook logo.webp";
+import xLogo from "../../assets/Images/X logo.webp";
+
 import "./Footer.css";
 
 const Footer = () => {
@@ -12,15 +17,15 @@ const Footer = () => {
           <div className="social-icons">
             <a href="#">
               <img
-                src="./src/assets/Images/facebook logo.webp"
+                src={facebookLogo}
                 alt="Facebook"
               />
             </a>
             <a href="#">
-              <img src="./src/assets/Images/X logo.webp" alt="X" />
+              <img src={xLogo} alt="X" />
             </a>
             <a href="#">
-              <img src="./src/assets/Images/insta.webp" alt="Instagram" />
+              <img src={instaLogo} alt="Instagram" />
             </a>
           </div>
         </div>
