@@ -2,8 +2,10 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import "./Navbar.css"; 
 import CustomButton from "../CustomButton/CustomButton"; 
-import MenuIcon from "@mui/icons-material/Menu"; // Material UI Icon
-import HomeIcon from "@mui/icons-material/Home"; // Example Icon
+import MenuIcon from "@mui/icons-material/Menu"; 
+import HomeIcon from "@mui/icons-material/Home"; 
+import logo from "../../assets/Images/logo_Sign_Language_Prediction.jpg";
+
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,7 +18,7 @@ const Navbar = () => {
     <nav className="navbar">
       {/* Logo */}
       <div className="logo-container">
-        <img src="../assets/Images/logo Sign Language Prediction.jpg" alt="SignApp Logo" className="logo" />
+        <img src= {logo} alt="SignApp Logo" className="logo" />
         <span className="app-name">SignGenie</span>
       </div>
 
