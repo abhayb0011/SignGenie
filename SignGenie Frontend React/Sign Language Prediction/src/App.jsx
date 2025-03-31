@@ -1,12 +1,12 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css"
-import Home from './assets/Pages/Home/Home'
-import Detection from './assets/Pages/Detection/Detection'
-import Quiz from './assets/Pages/Quiz/Quiz'
-import Dictionary from './assets/Pages/Dictionary/Dictionary'
-import PrivacyPolicy from './assets/Pages/PrivacyPolicy/PrivacyPolicy'
-import ContactUs from './assets/Pages/ContactUs/ContactUs'
+import Home from "./Pages/Home/Home";
+import Detection from "./Pages/Detection/Detection"
+import Quiz from './Pages/Quiz/Quiz'
+import Dictionary from './Pages/Dictionary/Dictionary'
+import PrivacyPolicy from './Pages/PrivacyPolicy/PrivacyPolicy'
+import ContactUs from './Pages/ContactUs/ContactUs'
 
 function App() {
   return (
