@@ -16,7 +16,7 @@ const Navbar = () => {
     <nav className="navbar">
       {/* Logo */}
       <div className="logo-container">
-        <img src="./src/assets/Images/logo Sign Language Prediction.jpg" alt="SignApp Logo" className="logo" />
+        <img src="../assets/Images/logo Sign Language Prediction.jpg" alt="SignApp Logo" className="logo" />
         <span className="app-name">SignGenie</span>
       </div>
 
