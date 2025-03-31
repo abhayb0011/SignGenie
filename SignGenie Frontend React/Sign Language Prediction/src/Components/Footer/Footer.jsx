@@ -2,7 +2,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 import facebookLogo from "../../assets/Images/facebook logo.webp";
 import instaLogo from "../../assets/Images/insta.webp";
-import facebookLogo from "../../assets/Images/facebook logo.webp";
 import xLogo from "../../assets/Images/X logo.webp";
 
 import "./Footer.css";
