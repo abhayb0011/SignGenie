@@ -1,6 +1,7 @@
 import React from "react";
 import "./Hero.css";
 import { Link } from "react-router-dom";
+import heroImg from "../../assets/Images/HomeHeroImg.jpeg";
 
 const Hero = () => {
   return (
@@ -8,7 +9,7 @@ const Hero = () => {
       <div className="hero-content">
         <div className="hero-image">
           <img
-            src="./src/assets/Images/HomeHeroImg.jpeg"
+            src={heroImg}
             alt="Sign Language Communication"
           />
         </div>
