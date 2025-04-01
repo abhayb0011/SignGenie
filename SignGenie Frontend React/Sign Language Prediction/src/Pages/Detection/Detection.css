@@ -1,0 +1,111 @@
+.detection-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    text-align: center;
+    background-color: #1a2b42; /* Darker background for theme consistency */
+    padding-bottom: 80px; /* Ensures footer does not overlap */
+}
+
+/* Title */
+.title {
+    font-size: 2rem;
+    color: #ffffff;
+    margin-bottom: 20px;
+}
+
+/* Video Styling */
+.video-container {
+    width: 500px;
+    height: 300px;
+    border: 2px solid #007bff;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background-color: black;
+}
+
+.video-box {
+    width: 100%;
+    height: 100%;
+}
+
+.video-placeholder {
+    color: white;
+    font-size: 1.2rem;
+}
+
+.controls{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+/* Button Styling */
+.detect-btn {
+    padding: 10px 20px;
+    font-size: 1rem;
+    color: white;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.detect-btn:hover {
+    background-color: #0056b3;
+}
+
+.speech-btn {
+    margin-left: 10px;
+    padding: 5px 10px;
+    border: none;
+    background-color: #1a2b42;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.speech-btn.active {
+    background-color: #007bff;
+}
+
+
+/* Prediction Output */
+.prediction-output {
+    text-align: center;
+}
+
+.prediction-output h2 {
+    margin-top: 20px;
+    font-size: 1.5rem;
+    height: 2.2rem;
+    color: #ffffff;
+}
+
+/* 🎨 Styled Predicted Text Container */
+.predicted-text-container {
+    width: 320px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #00b4d8;
+    border-radius: 8px;
+    background-color: #112032; /* Matches footer color */
+    box-shadow: 0px 4px 8px rgba(0, 180, 216, 0.3);
+    margin-top: 7px;
+}
+
+.predicted-text {
+    font-size: 1.4rem;
+    color: #00b4d8; /* Cyan text to contrast with dark theme */
+    font-weight: bold;
+}

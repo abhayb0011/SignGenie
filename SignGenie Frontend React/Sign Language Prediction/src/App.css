@@ -1,0 +1,62 @@
+:root {
+  --primary-color: #3282B8;  /* Bright Royal Blue */
+  --secondary-color: #FFD166; /* Warm Gold (Contrasts Well) */
+  --background-color: #0D1B2A;  /* Very Dark Navy Blue */
+  --navbar-bg: #763bb1;  /* Bright Electric Blue for contrast */
+  --text-color: #E6F1FF;  /* Soft White */
+  --text-color-light: #BBE1FA;  /* Muted Light Blue */
+  --button-hover: #FFD166; /* Gold for strong contrast */
+}
+
+/* Apply global dark background */
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-family: "Open Sans", sans-serif;
+  transition: background-color 0.3s ease-in-out;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+/* Highlighted elements */
+.highlight {
+  color: var(--secondary-color);
+  font-weight: 600;
+}
+
+/* Navbar */
+.navbar {
+  background-color: var(--navbar-bg);
+}
+
+.nav-links li a {
+  color: var(--text-color-light);
+}
+
+.nav-links li a:hover {
+  color: var(--primary-color);
+}
+.footer{
+  bottom: 0;
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+  }
+
+  .navbar {
+    background-color: var(--navbar-bg);
+  }
+
+  button {
+    background-color: var(--primary-color);
+  }
+}

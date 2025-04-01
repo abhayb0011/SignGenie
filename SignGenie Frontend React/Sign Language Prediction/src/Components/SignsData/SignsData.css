@@ -1,0 +1,85 @@
+/* General container */
+.signs-container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+  text-align: center;
+  color: var(--text-color);
+  background-color: var(--background-color);
+}
+
+/* Search Bar */
+.search-bar {
+  width: 60%;
+  padding: 10px;
+  margin: 20px auto;
+  border: 2px solid var(--primary-color);
+  border-radius: 8px;
+  font-size: 16px;
+  outline: none;
+  background: var(--navbar-bg);
+  color: var(--text-color);
+}
+
+/* Alphabet Filter */
+.alphabet-filter {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 15px 0;
+}
+
+.letter-btn {
+  margin: 5px;
+  padding: 8px 12px;
+  background-color: var(--secondary-color);
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.letter-btn:hover {
+  background-color: var(--button-hover);
+}
+
+/* Sign Cards Grid */
+.signs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+/* Individual Sign Card */
+.sign-card {
+  background: var(--navbar-bg);
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  transition: transform 0.3s ease-in-out;
+}
+
+.sign-card:hover {
+  transform: scale(1.05);
+}
+
+/* Sign Image */
+.sign-image {
+  width: 100%;
+  border-radius: 10px;
+}
+
+/* View Video Link */
+.sign-card a {
+  display: block;
+  margin-top: 10px;
+  text-decoration: none;
+  color: var(--secondary-color);
+  font-weight: bold;
+}
+
+.sign-card a:hover {
+  text-decoration: underline;
+}

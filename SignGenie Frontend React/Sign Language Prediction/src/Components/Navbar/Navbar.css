@@ -1,0 +1,73 @@
+/* Navbar Container */
+.navbar {
+    display: flex;
+    position:sticky;
+    justify-content: space-between;
+    top: 0;
+    align-items: center;
+    padding: 2px 5px;
+    height: 67px;
+    width: 100%;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Logo Section */
+  .logo-container {
+    display: flex;
+    align-items: center;
+  }
+  
+  .logo {
+    height: 65px; 
+    margin-right: 40px;
+    border-radius: 50%;
+  }
+  
+  .app-name {
+    font-family: "Poppins", sans-serif;
+    font-weight: 700;
+    font-size: 40px;
+    color: #112032;
+  }
+  
+  /* Navigation Links */
+  .nav-links {
+    display: flex;
+    gap: 15px;
+    list-style: none;
+    margin-right: 15px;
+  }
+  
+  .nav-links li {
+    display: inline-block;
+  }
+  
+  /* Hamburger Menu (Hidden by Default) */
+  .toggle-menu {
+    display: none;
+    cursor: pointer;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .nav-links {
+      display: none;
+      flex-direction: column;
+      position: absolute;
+      top: 60px;
+      right: 20px;
+      background: #F9FAFC;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    }
+  
+    .nav-links.open {
+      display: flex;
+    }
+  
+    .toggle-menu {
+      display: block;
+    }
+  }
+  
