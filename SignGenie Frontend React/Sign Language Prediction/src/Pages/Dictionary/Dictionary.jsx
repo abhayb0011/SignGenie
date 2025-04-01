@@ -8,7 +8,7 @@ const Dictionary = () => {
   const [selectedLetter, setSelectedLetter] = useState("");
 
   useEffect(() => {
-    fetch("https://signgenie.onrender.com/signs")
+    fetch("http://127.0.0.1:5000/signs")
       .then((res) => res.json())
       .then((data) => setSigns(data))
       .catch((err) => console.error("Error fetching signs:", err));
@@ -46,12 +46,12 @@ const Dictionary = () => {
         <div className="signs-list">
           {filteredSigns.map((sign) => (
             <div key={sign.id} className="sign-entry">
-              <img src={`https://signgenie.onrender.com/${sign.image_url}`} alt={sign.sign_name} className="sign-thumbnail" />
+              <img src={`http://127.0.0.1:5000/${sign.image_url}`} alt={sign.sign_name} className="sign-thumbnail" />
               <div>
                 <h3>{sign.sign_name}</h3>
                 <p>{sign.description}</p>
                 <a
-                  href={`https://signgenie.onrender.com/${sign.video_url}`}
+                  href={`http://127.0.0.1:5000/${sign.video_url}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

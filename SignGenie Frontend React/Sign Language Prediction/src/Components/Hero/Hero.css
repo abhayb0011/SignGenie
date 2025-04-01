@@ -3,6 +3,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 20px 10%;
+  background-color: var(--background-color);
 }
 
 .hero-content {
@@ -13,14 +14,15 @@
   font-size: 2.5rem;
   font-weight: 700;
   font-family: "Poppins", sans-serif;
-  color: #4A90E2;
+  color: var(--primary-color);
   margin-bottom: 15px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .hero-content p {
   font-size: 1.2rem;
   font-family: "Poppins";
-  color: #dde2e5;
+  color: var(--text-color-light);
   line-height: 1.6;
   text-align: center;
 }
@@ -35,6 +37,7 @@
   max-width: 100%;
   height: auto;
   border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .cta-container {
@@ -44,8 +47,8 @@
 }
 
 .cta-button {
-  background: linear-gradient(135deg, #0F4C75, #3282B8);
-  color: #FFFFFF;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
   font-family: "Poppins", sans-serif;
   font-size: 1.2rem;
   font-weight: 600;
@@ -55,18 +58,18 @@
   cursor: pointer;
   transition: all 0.3s ease-in-out;
   text-transform: uppercase;
-  box-shadow: 0 4px 8px rgba(50, 130, 184, 0.3);
+  box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
   display: flex;
   align-items: center;
-  gap: 10px; /* Space between arrow and text */
-  text-decoration: none; /* Remove underline */
+  gap: 10px;
+  text-decoration: none;
   justify-content: center;
 }
 
 .cta-button:hover {
-  background: linear-gradient(135deg, #3282B8, #BBE1FA);
+  background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
   transform: scale(1.05);
-  box-shadow: 0 6px 12px rgba(50, 130, 184, 0.5);
+  box-shadow: 0 6px 12px rgba(33, 150, 243, 0.5);
 }
 
 /* Ensures the <Link> inside behaves like a button */

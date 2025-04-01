@@ -1,73 +1,87 @@
 /* Navbar Container */
 .navbar {
     display: flex;
-    position:sticky;
+    position: fixed;
     justify-content: space-between;
     top: 0;
+    left: 0;
+    right: 0;
     align-items: center;
-    padding: 2px 5px;
+    padding: 2px 20px;
     height: 67px;
     width: 100%;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Logo Section */
-  .logo-container {
+    box-sizing: border-box;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    background-color: var(--navbar-bg);
+    border-bottom: 1px solid #404040;
+    z-index: 1000;
+}
+
+/* Logo Section */
+.logo-container {
     display: flex;
     align-items: center;
-  }
-  
-  .logo {
-    height: 65px; 
-    margin-right: 40px;
+    margin-left: 0;
+}
+
+.logo {
+    height: 65px;
+    margin-right: 20px;
     border-radius: 50%;
-  }
-  
-  .app-name {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.app-name {
     font-family: "Poppins", sans-serif;
     font-weight: 700;
     font-size: 40px;
-    color: #112032;
-  }
-  
-  /* Navigation Links */
-  .nav-links {
+    color: var(--primary-color);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Navigation Links */
+.nav-links {
     display: flex;
     gap: 15px;
     list-style: none;
-    margin-right: 15px;
-  }
-  
-  .nav-links li {
+    margin-right: 0;
+}
+
+.nav-links li {
     display: inline-block;
-  }
-  
-  /* Hamburger Menu (Hidden by Default) */
-  .toggle-menu {
+}
+
+/* Hamburger Menu (Hidden by Default) */
+.toggle-menu {
     display: none;
     cursor: pointer;
-  }
-  
-  /* Responsive Design */
-  @media (max-width: 768px) {
+    color: var(--text-color-light);
+    margin-right: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
     .nav-links {
-      display: none;
-      flex-direction: column;
-      position: absolute;
-      top: 60px;
-      right: 20px;
-      background: #F9FAFC;
-      padding: 10px;
-      border-radius: 5px;
-      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 60px;
+        right: 20px;
+        background: var(--navbar-bg);
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+        border: 1px solid #404040;
+        min-width: 200px;
+        box-sizing: border-box;
     }
-  
+
     .nav-links.open {
-      display: flex;
+        display: flex;
     }
-  
+
     .toggle-menu {
-      display: block;
+        display: block;
     }
-  }
+}
   

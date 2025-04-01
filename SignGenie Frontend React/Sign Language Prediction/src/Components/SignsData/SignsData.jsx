@@ -7,7 +7,7 @@ const SignsData = () => {
   const [filterLetter, setFilterLetter] = useState("");
 
   useEffect(() => {
-    fetch("https://signgenie.onrender.com/signs") // Flask API
+    fetch("http://127.0.0.1:5000/signs") // Flask API
       .then((res) => res.json())
       .then((data) => setSigns(data))
       .catch((err) => console.error("Error fetching signs:", err));
