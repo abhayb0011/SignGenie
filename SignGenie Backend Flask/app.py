@@ -6,12 +6,6 @@ from flask_cors import CORS
 import os
 import tensorflow as tf
 
-# ✅ TensorFlow Memory Management
-tf.config.set_logical_device_configuration(
-    tf.config.list_physical_devices('CPU')[0],
-    [tf.config.LogicalDeviceConfiguration(memory_limit=400)]  # Limits TensorFlow memory usage
-)
-
 app = Flask(__name__)
 CORS(app)
 
