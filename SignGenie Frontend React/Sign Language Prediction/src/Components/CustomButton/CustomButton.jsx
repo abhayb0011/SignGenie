@@ -1,17 +1,18 @@
 import React from "react";
-import Button from "@mui/material/Button";
-import "./CustomButton.css"; // Import the CSS file
+import "./CustomButton.css";
 
-const CustomButton = ({ text, icon: Icon, onClick, color = "primary" }) => {
+const CustomButton = ({
+  text,
+  icon: Icon,
+  onClick,
+  color = "primary",
+  className = "",
+}) => {
   return (
-    <Button
-      className={`custom-button ${color}`}
-      variant="contained"
-      startIcon={Icon && <Icon />}
-      onClick={onClick}
-    >
-      {text}
-    </Button>
+    <button className={`custom-button ${color} ${className}`} onClick={onClick}>
+      {Icon && <Icon className="button-icon" />}
+      <span className="button-text">{text}</span>
+    </button>
   );
 };
 

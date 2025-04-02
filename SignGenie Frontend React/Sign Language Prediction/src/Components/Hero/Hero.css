@@ -1,83 +1,279 @@
 .hero {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #27374D 0%, #526D82 100%);
+  padding: 80px 10%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 20px 10%;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .hero-content {
-  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4rem;
 }
 
-.hero-content h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
+.hero-text {
+  flex: 0.9;
+  max-width: 550px;
+}
+
+.hero-text h1 {
+  font-size: 3.5rem;
+  font-weight: 800;
   font-family: "Poppins", sans-serif;
-  color: #4A90E2;
-  margin-bottom: 15px;
+  color: #DDE6ED;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+  animation: fadeInUp 1s ease;
 }
 
-.hero-content p {
-  font-size: 1.2rem;
+.hero-text h2 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  font-family: "Poppins", sans-serif;
+  color: #9DB2BF;
+  margin-bottom: 1.5rem;
+  animation: fadeInUp 1s ease 0.2s;
+}
+
+.hero-text p {
+  font-size: 1.1rem;
   font-family: "Poppins";
-  color: #dde2e5;
-  line-height: 1.6;
-  text-align: center;
+  color: #DDE6ED;
+  line-height: 1.8;
+  margin-bottom: 2rem;
+  animation: fadeInUp 1s ease 0.4s;
 }
 
 .hero-image {
-  flex: 1;
+  flex: 1.1;
+  position: relative;
+  animation: fadeInRight 1s ease;
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 
-.hero-image img {
-  max-width: 100%;
+.image-container {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+  max-width: 650px;
+  width: 100%;
+  margin: 0 auto;
+  transform: perspective(1000px) rotateY(-5deg);
+  transition: all 0.5s ease;
+}
+
+.image-container::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  z-index: -1;
+  background: linear-gradient(45deg, #FFD700, #3282B8, #0F4C75, #3282B8);
+  border-radius: 24px;
+  opacity: 0.7;
+  animation: glowingBorder 3s infinite alternate;
+}
+
+.image-container:hover {
+  transform: perspective(1000px) rotateY(0deg);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+}
+
+.image-container img {
+  width: 100%;
   height: auto;
-  border-radius: 10px;
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+.image-container:hover img {
+  transform: scale(1.05);
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(39, 55, 77, 0.2) 0%, rgba(82, 109, 130, 0.2) 100%);
 }
 
 .cta-container {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  gap: 1.5rem;
+  animation: fadeInUp 1s ease 0.6s;
 }
 
 .cta-button {
-  background: linear-gradient(135deg, #0F4C75, #3282B8);
-  color: #FFFFFF;
+  padding: 1.2rem 2.5rem;
+  border-radius: 12px;
   font-family: "Poppins", sans-serif;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 600;
-  padding: 12px 24px;
-  border: none;
-  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease-in-out;
-  text-transform: uppercase;
-  box-shadow: 0 4px 8px rgba(50, 130, 184, 0.3);
-  display: flex;
-  align-items: center;
-  gap: 10px; /* Space between arrow and text */
-  text-decoration: none; /* Remove underline */
-  justify-content: center;
-}
-
-.cta-button:hover {
-  background: linear-gradient(135deg, #3282B8, #BBE1FA);
-  transform: scale(1.05);
-  box-shadow: 0 6px 12px rgba(50, 130, 184, 0.5);
-}
-
-/* Ensures the <Link> inside behaves like a button */
-.cta-button a {
-  color: white;
+  transition: all 0.3s ease;
+  border: none;
   text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 200px;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-button.primary {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #27374D;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+  text-shadow: none;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+}
+
+.cta-button.primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
   width: 100%;
   height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  transition: 0.5s;
+}
+
+.cta-button.primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5);
+  background: linear-gradient(135deg, #FFE55C, #FFB52E);
+}
+
+.cta-button.secondary {
+  background: transparent;
+  color: #DDE6ED;
+  border: 2px solid #DDE6ED;
+}
+
+.cta-button.secondary:hover {
+  background: rgba(221, 230, 237, 0.1);
+  transform: translateY(-3px);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes glowingBorder {
+  0% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0.8;
+  }
+}
+
+@media (max-width: 1024px) {
+  .hero-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 3rem;
+  }
+
+  .hero-text {
+    max-width: 100%;
+  }
+
+  .hero-text h1 {
+    font-size: 2.8rem;
+  }
+
+  .hero-text h2 {
+    font-size: 1.5rem;
+  }
+
+  .cta-container {
+    justify-content: center;
+  }
+
+  .image-container {
+    max-width: 550px;
+    transform: perspective(1000px) rotateY(0deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 80px 5% 60px;
+  }
+
+  .hero-text h1 {
+    font-size: 2.2rem;
+  }
+
+  .hero-text h2 {
+    font-size: 1.3rem;
+  }
+
+  .hero-text p {
+    font-size: 1rem;
+  }
+
+  .image-container {
+    max-width: 100%;
+    transform: none;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+  }
+
+  .image-container::before {
+    display: none;
+  }
+
+  .cta-container {
+    flex-direction: column;
+  }
+
+  .cta-button {
+    width: 100%;
+  }
 }
 
 

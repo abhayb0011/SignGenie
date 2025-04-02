@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../../Components/Navbar/Navbar";
 import Footer from "../../Components/Footer/Footer";
-import VolumeUpIcon from "@mui/icons-material/VolumeUp"; // Importing Material UI Icon
+import VolumeUpIcon from "@mui/icons-material/VolumeUp";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import StopIcon from "@mui/icons-material/Stop";
 import "./Detection.css";
 
 const Detection = () => {
@@ -49,48 +51,73 @@ const Detection = () => {
   }, [isDetecting, isSpeechEnabled, lastSpokenWord]);
 
   return (
-    <>
+    <div className="detection-page">
       <Navbar />
-      <div className="detection-container">
-        <h1 className="title">Live Sign Language Detection</h1>
+      <main className="detection-main">
+        <div className="detection-container">
+          <h1 className="detection-title">Live Sign Language Detection</h1>
+          <p className="detection-subtitle">
+            Use your camera to detect and translate sign language in real-time
+          </p>
 
-        <div className="video-container">
-          {isDetecting ? (
-            <img
-              src="http://127.0.0.1:5000/video"
-              alt="Live Video Stream"
-              className="video-box"
-            />
-          ) : (
-            <div className="video-placeholder">Camera is Off</div>
-          )}
-        </div>
+          <div className="detection-content">
+            <div className="video-container">
+              {isDetecting ? (
+                <img
+                  src="http://127.0.0.1:5000/video"
+                  alt="Live Video Stream"
+                  className="video-box"
+                />
+              ) : (
+                <div className="video-placeholder">
+                  <div className="placeholder-content">
+                    <p>Camera is Off</p>
+                    <p className="placeholder-subtext">
+                      Click Start Detection to begin
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
 
-        <div className="controls">
-          <button
-            className="detect-btn"
-            onClick={() => setIsDetecting(!isDetecting)}
-          >
-            {isDetecting ? "Stop Detection" : "Start Detection"}
-          </button>
+            <div className="prediction-output">
+              <h2>Predicted Text</h2>
+              <div className="predicted-text-container">
+                <p className="predicted-text">{prediction}</p>
+              </div>
+            </div>
 
-          <button
-            className={`speech-btn ${isSpeechEnabled ? "active" : ""}`}
-            onClick={() => setIsSpeechEnabled(!isSpeechEnabled)}
-          >
-            <VolumeUpIcon /> {/* Voice icon for text to speech */}
-          </button>
-        </div>
+            <div className="controls">
+              <button
+                className={`control-button ${isDetecting ? "active" : ""}`}
+                onClick={() => setIsDetecting(!isDetecting)}
+              >
+                {isDetecting ? (
+                  <>
+                    <StopIcon /> Stop Detection
+                  </>
+                ) : (
+                  <>
+                    <PlayArrowIcon /> Start Detection
+                  </>
+                )}
+              </button>
 
-        <div className="prediction-output">
-          <h2>Predicted Text:</h2>
-          <div className="predicted-text-container">
-            <p className="predicted-text">{prediction}</p>
+              <button
+                className={`control-button speech ${
+                  isSpeechEnabled ? "active" : ""
+                }`}
+                onClick={() => setIsSpeechEnabled(!isSpeechEnabled)}
+              >
+                <VolumeUpIcon />
+                {isSpeechEnabled ? "Disable Speech" : "Enable Speech"}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </main>
       <Footer />
-    </>
+    </div>
   );
 };
 
