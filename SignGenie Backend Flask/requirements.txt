@@ -8,4 +8,8 @@ opencv-python-headless==4.11.0.86
 mediapipe==0.10.21
 protobuf==4.25.6
 requests==2.32.3
+<<<<<<< HEAD
 gunicorn==23.0.0
+=======
+gunicorn==23.0.0
+>>>>>>> 1a29761d313d853e08cb3581d291e64c9cedda74
