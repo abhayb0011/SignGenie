@@ -1,12 +1,10 @@
 Flask==3.1.0
 flask-cors==5.0.1
-tensorflow-cpu==2.19.0  # Replaces tensorflow (smaller size)
-keras==3.9.0
+tensorflow-cpu==2.19.0  # Or use tflite-runtime
 numpy==1.26.4
 scikit-learn==1.6.1
 scipy==1.13.1
-opencv-python==4.11.0.86
-opencv-contrib-python==4.11.0.86
+opencv-python-headless==4.11.0.86
 mediapipe==0.10.21
 protobuf==4.25.6
 requests==2.32.3
