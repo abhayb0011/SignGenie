@@ -5,7 +5,7 @@ import CustomButton from "../CustomButton/CustomButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import logo from "../../assets/Images/logo Sign Language Prediction.jpg";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../Context/AuthContext";
 
 const Navbar = () => {
   const { isLoggedIn, setIsLoggedIn } = useAuth();
