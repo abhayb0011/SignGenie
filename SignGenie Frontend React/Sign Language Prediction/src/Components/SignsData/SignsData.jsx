@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios"; // ✅ Import axios
+import axios from "axios";
 import "./SignsData.css";
 
 const SignsData = () => {
+  const baseURL = import.meta.env.VITE_API_BASE_URL
   const [signs, setSigns] = useState([]);
   const [search, setSearch] = useState("");
   const [filterLetter, setFilterLetter] = useState("");
 
   useEffect(() => {
     axios
-      .get("http://127.0.0.1:5000/signs") // ✅ Axios GET request
+      .get(`${baseURL}/signs`) 
       .then((response) => {
         setSigns(response.data);
       })

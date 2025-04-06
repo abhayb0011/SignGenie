@@ -8,6 +8,7 @@ import StopIcon from "@mui/icons-material/Stop";
 import "./Detection.css";
 
 const Detection = () => {
+  const baseURL = import.meta.env.VITE_API_BASE_URL
   const [prediction, setPrediction] = useState("Waiting...");
   const [isDetecting, setIsDetecting] = useState(false);
   const [isSpeechEnabled, setIsSpeechEnabled] = useState(false);
@@ -66,7 +67,7 @@ const Detection = () => {
               const token = localStorage.getItem("token");
 
               axios
-                .post("http://127.0.0.1:5000/predict-frame", formData, {
+                .post(`${baseURL}/predict-frame`, formData, {
                   headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "multipart/form-data",
@@ -103,7 +104,7 @@ const Detection = () => {
 
             axios
               .post(
-                "http://127.0.0.1:5000/sign-history",
+                `${baseURL}/sign-history`,
                 { sign: latestPrediction },
                 {
                   headers: {

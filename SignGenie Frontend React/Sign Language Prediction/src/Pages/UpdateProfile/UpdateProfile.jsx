@@ -6,6 +6,7 @@ import axios from "axios";
 import "./UpdateProfile.css";
 
 const UpdateProfile = () => {
+  const baseURL = import.meta.env.VITE_API_BASE_URL
   const [formData, setFormData] = useState({ name: "", username: "" });
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ const UpdateProfile = () => {
 
     const fetchProfile = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/profile", {
+        const res = await axios.get(`${baseURL}/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setFormData({
@@ -44,7 +45,7 @@ const UpdateProfile = () => {
 
     try {
       const res = await axios.put(
-        "http://localhost:5000/update-profile",
+        `${baseURL}/update-profile`,
         formData,
         {
           headers: {
@@ -53,13 +54,13 @@ const UpdateProfile = () => {
           },
         }
       );
-      setMessage("✅ Profile updated successfully!");
+      setMessage("Profile updated successfully!");
       setTimeout(() => navigate("/profile"), 2000);
     } catch (err) {
       if (err.response && err.response.data && err.response.data.error) {
-        setMessage(`❌ ${err.response.data.error}`);
+        setMessage(`${err.response.data.error}`);
       } else {
-        setMessage("❌ Failed to update profile. Try again.");
+        setMessage("Failed to update profile. Try again.");
       }
     }
   };

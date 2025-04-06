@@ -10,6 +10,7 @@ import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import TimerIcon from "@mui/icons-material/Timer";
 
 const Quiz = () => {
+  const baseURL = import.meta.env.VITE_API_BASE_URL
   const [questions, setQuestions] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [userAnswer, setUserAnswer] = useState(null);
@@ -29,7 +30,7 @@ const Quiz = () => {
 
   const fetchQuizQuestions = async () => {
     try {
-      const response = await axios.get("http://127.0.0.1:5000/signs");
+      const response = await axios.get(`${baseURL}/signs`);
       setQuestions(response.data);
     } catch (error) {
       console.error("Error fetching quiz data:", error);
@@ -91,7 +92,7 @@ const Quiz = () => {
               const token = localStorage.getItem("token");
   
               axios
-                .post("http://127.0.0.1:5000/predict-frame", formData, {
+                .post(`${baseURL}/predict-frame`, formData, {
                   headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "multipart/form-data",
@@ -164,7 +165,7 @@ const Quiz = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.put(
-        "http://127.0.0.1:5000/update-high-score",
+        `${baseURL}/update-high-score`,
         { score }, // send the final score
         {
           headers: {
@@ -222,7 +223,7 @@ const Quiz = () => {
                 </div>
                 <div className="sign-image-container">
                   <img
-                    src={`http://127.0.0.1:5000/${questions[currentQuestion].image_url}`}
+                    src={`${baseURL}/${questions[currentQuestion].image_url}`}
                     alt="Sign Example"
                     className="sign-image"
                   />

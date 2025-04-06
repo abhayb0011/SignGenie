@@ -5,12 +5,13 @@ import Footer from "../../Components/Footer/Footer";
 import "./Dictionary.css";
 
 const Dictionary = () => {
+  const baseURL = import.meta.env.VITE_API_BASE_URL
   const [signs, setSigns] = useState([]);
   const [selectedLetter, setSelectedLetter] = useState("");
 
   useEffect(() => {
     axios
-      .get("http://127.0.0.1:5000/signs")
+      .get(`${baseURL}/signs`)
       .then((response) => setSigns(response.data))
       .catch((error) => console.error("Error fetching signs:", error));
   }, []);
@@ -55,7 +56,7 @@ const Dictionary = () => {
           {filteredSigns.map((sign) => (
             <div key={sign.id} className="sign-entry">
               <img
-                src={`http://127.0.0.1:5000/${sign.image_url}`}
+                src={`${baseURL}/${sign.image_url}`}
                 alt={sign.sign_name}
                 className="sign-thumbnail"
               />
@@ -63,7 +64,7 @@ const Dictionary = () => {
                 <h3>{sign.sign_name}</h3>
                 <p>{sign.description}</p>
                 <a
-                  href={`http://127.0.0.1:5000/${sign.video_url}`}
+                  href={`${baseURL}/${sign.video_url}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

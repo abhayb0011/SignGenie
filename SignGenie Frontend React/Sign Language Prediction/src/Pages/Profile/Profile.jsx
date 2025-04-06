@@ -11,6 +11,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import "./Profile.css";
 
 const Profile = () => {
+  const baseURL = import.meta.env.VITE_API_BASE_URL
   const [profile, setProfile] = useState(null);
   const navigate = useNavigate();
 
@@ -20,7 +21,7 @@ const Profile = () => {
     if (!token) return navigate("/login");
 
     axios
-      .get("http://localhost:5000/profile", {
+      .get(`${baseURL}/profile`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

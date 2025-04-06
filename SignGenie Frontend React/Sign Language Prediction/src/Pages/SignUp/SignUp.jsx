@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const Signup = () => {
+  const baseURL = import.meta.env.VITE_API_BASE_URL
   const [form, setForm] = useState({ name: "", username: "", email: "", password: "" });
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ const Signup = () => {
     setError("");
 
     try {
-      const response = await axios.post("http://127.0.0.1:5000/register", form);
+      const response = await axios.post(`${baseURL}/register`, form);
       localStorage.setItem("token", response.data.token);
       navigate("/");
     } catch (err) {

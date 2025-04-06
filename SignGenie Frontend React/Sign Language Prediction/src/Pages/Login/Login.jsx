@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const Login = () => {
+  const baseURL = import.meta.env.VITE_API_BASE_URL
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -14,7 +15,7 @@ const Login = () => {
     setError("");
 
     try {
-      const res = await axios.post("http://127.0.0.1:5000/login", {
+      const res = await axios.post(`${baseURL}/login`, {
         email,
         password,
       });
