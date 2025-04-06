@@ -20,7 +20,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG_MODE = False  # Set to False in production mode
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+CORS(app, resources={r"/*": {"origins": ["https://signgenie.vercel.app"]}}, supports_credentials=True)
 
 
 # Load the ML Model
