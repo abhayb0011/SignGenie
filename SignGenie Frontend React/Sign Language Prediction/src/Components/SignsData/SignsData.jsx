@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios"; // ✅ Import axios
 import "./SignsData.css";
 
 const SignsData = () => {
@@ -7,10 +8,14 @@ const SignsData = () => {
   const [filterLetter, setFilterLetter] = useState("");
 
   useEffect(() => {
-    fetch("http://127.0.0.1:5000/signs") // Flask API
-      .then((res) => res.json())
-      .then((data) => setSigns(data))
-      .catch((err) => console.error("Error fetching signs:", err));
+    axios
+      .get("http://127.0.0.1:5000/signs") // ✅ Axios GET request
+      .then((response) => {
+        setSigns(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching signs:", error);
+      });
   }, []);
 
   const filteredSigns = signs.filter((sign) =>

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
 import "./Quiz.css";
 import Navbar from "../../Components/Navbar/Navbar";
 import Footer from "../../Components/Footer/Footer";
@@ -19,9 +20,38 @@ const Quiz = () => {
   const [timeLeft, setTimeLeft] = useState(30);
   const [isTimerActive, setIsTimerActive] = useState(false);
 
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+
   useEffect(() => {
     fetchQuizQuestions();
   }, []);
+
+  const fetchQuizQuestions = async () => {
+    try {
+      const response = await axios.get("http://127.0.0.1:5000/signs");
+      setQuestions(response.data);
+    } catch (error) {
+      console.error("Error fetching quiz data:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (isDetecting) {
+      navigator.mediaDevices
+        .getUserMedia({ video: true })
+        .then((stream) => {
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+          }
+        })
+        .catch((err) => console.error("Error accessing webcam:", err));
+    } else {
+      if (videoRef.current && videoRef.current.srcObject) {
+        videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+      }
+    }
+  }, [isDetecting]);
 
   useEffect(() => {
     let timer;
@@ -37,58 +67,85 @@ const Quiz = () => {
     return () => clearInterval(timer);
   }, [isTimerActive, timeLeft]);
 
-  const fetchQuizQuestions = async () => {
-    try {
-      const response = await fetch("http://127.0.0.1:5000/signs");
-      if (!response.ok) throw new Error("Failed to fetch questions");
-      const data = await response.json();
-      setQuestions(data);
-    } catch (error) {
-      console.error("Error fetching quiz data:", error);
-    }
-  };
-
   useEffect(() => {
-    let interval;
-
+    let frameInterval;
+    let displayInterval;
+    let latestPrediction = "";
+  
     if (isDetecting) {
-      interval = setInterval(async () => {
-        try {
-          const response = await fetch("http://127.0.0.1:5000/prediction", {
-            cache: "no-store",
-          });
-          if (!response.ok) throw new Error("Failed to fetch prediction");
-          const data = await response.json();
-          if (!data || !data.prediction)
-            throw new Error("Invalid response format");
-
-          const detectedSign = data.prediction;
-          setPrediction(detectedSign);
-
-          if (!questions.length) return;
-          const correctAnswer = questions[currentQuestion]?.sign_name || "";
-
-          if (detectedSign.toLowerCase() === correctAnswer.toLowerCase()) {
-            setUserAnswer(true);
-            setFeedback("🎉 Correct! Well done!");
-            setIsDetecting(false);
-            setIsTimerActive(false);
-            setScore((prev) => prev + 1);
-          } else {
-            setUserAnswer(false);
-            setFeedback("❌ Incorrect! Try again.");
-          }
-        } catch (error) {
-          console.error("Error fetching prediction:", error);
-          setFeedback("⚠️ Could not fetch prediction.");
+      frameInterval = setInterval(() => {
+        const canvas = canvasRef.current;
+        const video = videoRef.current;
+  
+        if (canvas && video) {
+          const ctx = canvas.getContext("2d");
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  
+          canvas.toBlob((blob) => {
+            if (blob) {
+              const formData = new FormData();
+              formData.append("image", blob, "frame.jpg");
+  
+              const token = localStorage.getItem("token");
+  
+              axios
+                .post("http://127.0.0.1:5000/predict-frame", formData, {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "multipart/form-data",
+                  },
+                })
+                .then((response) => {
+                  latestPrediction = response.data.prediction;
+                })
+                .catch((err) =>
+                  console.error("Error sending frame for prediction:", err)
+                );
+            }
+          }, "image/jpeg");
         }
-      }, 1500);
+      }, 30);
+  
+      displayInterval = setInterval(() => {
+        const correctAnswer = questions[currentQuestion]?.sign_name || "";
+  
+        if (
+          latestPrediction &&
+          correctAnswer &&
+          latestPrediction.toLowerCase() === correctAnswer.toLowerCase()
+        ) {
+          setUserAnswer(true);
+          setFeedback("🎉 Correct! Well done!");
+          setIsDetecting(false);
+          setIsTimerActive(false);
+          setScore((prev) => prev + 1);
+        } else if (
+          latestPrediction &&
+          latestPrediction !== "Waiting for enough frames..."
+        ) {
+          setUserAnswer(false);
+          setFeedback("❌ Incorrect! Try again.");
+        }
+  
+        if (
+          latestPrediction &&
+          latestPrediction !== "Waiting for enough frames..."
+        ) {
+          setPrediction(latestPrediction);
+        }
+      }, 1000);
     } else {
       setPrediction("Waiting...");
     }
-
-    return () => clearInterval(interval);
-  }, [isDetecting, questions, currentQuestion]);
+  
+    return () => {
+      clearInterval(frameInterval);
+      clearInterval(displayInterval);
+    };
+  }, [isDetecting, currentQuestion, questions]);
+  
 
   const startDetection = () => {
     setIsDetecting(true);
@@ -103,17 +160,39 @@ const Quiz = () => {
     setFeedback("Detection stopped.");
   };
 
+  const updateHighScore = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put(
+        "http://127.0.0.1:5000/update-high-score",
+        { score }, // send the final score
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error updating high score:", error);
+    }
+  };  
+
   const nextQuestion = () => {
     setFeedback("");
     setUserAnswer(null);
     setPrediction("Waiting...");
     setTimeLeft(30);
+  
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
+      updateHighScore();
     } else {
       alert(`🎉 Quiz Completed! Your score: ${score}/${questions.length}`);
+      updateHighScore();
     }
   };
+  
 
   return (
     <div className="quiz-page">
@@ -153,11 +232,15 @@ const Quiz = () => {
 
               <div className="video-section">
                 {isDetecting ? (
-                  <img
-                    src="http://127.0.0.1:5000/video"
-                    alt="Live Video Stream"
-                    className="webcam-feed"
-                  />
+                  <>
+                    <video
+                      ref={videoRef}
+                      autoPlay
+                      muted
+                      className="webcam-feed"
+                    />
+                    <canvas ref={canvasRef} style={{ display: "none" }} />
+                  </>
                 ) : (
                   <div className="video-placeholder">
                     <div className="placeholder-content">

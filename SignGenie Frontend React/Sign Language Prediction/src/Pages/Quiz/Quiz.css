@@ -31,6 +31,7 @@
   display: flex;
   justify-content: center;
   gap: 2rem;
+  flex-wrap: wrap;
 }
 
 .stat-item {
@@ -65,13 +66,13 @@
   border-radius: 20px;
   backdrop-filter: blur(10px);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
   min-height: 350px;
+  text-align: center;
 }
 
 .question-section h2 {
@@ -80,7 +81,6 @@
   font-weight: 600;
   color: #DDE6ED;
   margin-bottom: 1rem;
-  text-align: center;
 }
 
 .sign-name {
@@ -89,7 +89,6 @@
   font-weight: 700;
   color: #3282B8;
   margin-bottom: 1.5rem;
-  text-align: center;
 }
 
 .sign-image-container {
@@ -114,11 +113,8 @@
 
 .image-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(39, 55, 77, 0.2) 0%, rgba(82, 109, 130, 0.2) 100%);
+  inset: 0;
+  background: linear-gradient(135deg, rgba(39, 55, 77, 0.2), rgba(82, 109, 130, 0.2));
 }
 
 .video-section {
@@ -162,7 +158,9 @@
 
 .detection-controls {
   display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
+  justify-content: center;
 }
 
 .control-button {
@@ -218,7 +216,6 @@
   font-size: 2rem;
   font-weight: 500;
   color: #3282B8;
-  margin: 0;
 }
 
 .feedback {
@@ -305,6 +302,15 @@
   .quiz-content {
     grid-template-columns: 1fr;
   }
+
+  .controls-section {
+    gap: 1.5rem;
+  }
+
+  .next-button {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 @media (max-width: 768px) {
@@ -333,15 +339,6 @@
   .prediction-text {
     font-size: 1.5rem;
   }
-
-  .controls-section {
-    gap: 1.5rem;
-  }
-
-  .next-button {
-    width: 100%;
-    justify-content: center;
-  }
 }
 
 .webcam-feed {
@@ -349,4 +346,6 @@
   height: 100%;
   min-height: 350px;
   object-fit: cover;
+  border-radius: 20px;
 }
+

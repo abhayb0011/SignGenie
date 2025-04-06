@@ -1,0 +1,103 @@
+.profile-wrapper {
+  margin-top: 4rem;
+  min-height: 85vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--background-color);
+  padding: 2rem;
+}
+
+.profile-card {
+  background-color: #1b2b44;
+  border-radius: 1.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  padding: 3rem 2rem;
+  max-width: 600px;
+  width: 100%;
+  color: var(--text-color);
+}
+
+.profile-title {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: var(--primary-color);
+  text-align: center;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  margin-bottom: 2rem;
+}
+
+.profile-box {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: #243b5e;
+  border-radius: 1rem;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 4px 15px rgba(50, 130, 184, 0.2);
+}
+
+.sign-history-list {
+  list-style-type: disc;
+  margin: 0.5rem 0 0 1.5rem;
+  padding: 0;
+  color: var(--text-color);
+  font-size: 0.95rem;
+}
+
+.sign-history-list li {
+  margin-bottom: 0.3rem;
+}
+
+
+.profile-icon, .emoji {
+  font-size: 1.8rem;
+  color: var(--secondary-color);
+}
+
+.box-label {
+  font-size: 0.85rem;
+  color: var(--text-color-light);
+  min-width: 120px;
+}
+
+.box-value {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-left: auto;
+}
+
+.update-profile-btn {
+  background-color: var(--primary-color);
+  color: #fff;
+  padding: 0.8rem 2rem;
+  border: none;
+  border-radius: 0.8rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: block;
+  margin: 0 auto;
+  transition: background 0.3s ease;
+}
+
+.update-profile-btn:hover {
+  background-color: var(--secondary-color);
+  color: #000;
+}
+
+.profile-loading {
+  min-height: 100vh;
+  background-color: var(--background-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--text-color-light);
+  font-size: 1.3rem;
+}

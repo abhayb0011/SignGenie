@@ -1,15 +1,15 @@
 Flask==3.1.0
-flask-cors==5.0.1
-tensorflow-cpu==2.19.0  # Or use tflite-runtime
-numpy==1.26.4
-scikit-learn==1.6.1
-scipy==1.13.1
-opencv-python-headless==4.11.0.86
+Flask-Cors==5.0.1
+Flask-PyMongo==3.0.1
+gunicorn==23.0.0
+python-dotenv==1.1.0
+PyJWT==2.10.1
+pymongo==4.11.3
 mediapipe==0.10.21
-protobuf==4.25.6
-requests==2.32.3
-<<<<<<< HEAD
-gunicorn==23.0.0
-=======
-gunicorn==23.0.0
->>>>>>> 1a29761d313d853e08cb3581d291e64c9cedda74
+opencv-python==4.11.0.86
+tensorflow==2.19.0
+numpy==1.26.4
+imutils==0.5.4
+scikit-learn==1.6.1    
+pillow==11.1.0         
+requests==2.32.3       

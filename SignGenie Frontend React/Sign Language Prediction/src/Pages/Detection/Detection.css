@@ -41,7 +41,7 @@
     align-items: center;
 }
 
-.video-container, 
+.video-container,
 .prediction-output {
     height: 400px;
     display: flex;
@@ -55,12 +55,14 @@
     overflow: hidden;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     backdrop-filter: blur(10px);
+    position: relative;
 }
 
 .video-box {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    border-radius: 20px;
 }
 
 .video-placeholder {
@@ -165,12 +167,13 @@
     background: #3282B8;
 }
 
+/* Responsive Design */
 @media (max-width: 1024px) {
     .detection-content {
         grid-template-columns: 1fr;
     }
 
-    .video-container, 
+    .video-container,
     .prediction-output {
         max-width: 800px;
         margin: 0 auto;

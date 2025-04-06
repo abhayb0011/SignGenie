@@ -1,9 +1,21 @@
 import React from "react";
 import "./Hero.css";
-import { Link } from "react-router-dom";
 import heroImg from "../../assets/Images/HomeHeroImg.jpeg";
+import { useNavigate } from "react-router-dom";
 
 const Hero = () => {
+  const navigate = useNavigate();
+
+  const handleStartDetecting = () => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      navigate("/detection");
+    } else {
+      alert("Please login to start detecting signs.");
+    }
+  };
+
   return (
     <section className="hero">
       <div className="hero-container">
@@ -20,8 +32,8 @@ const Hero = () => {
               everyone.
             </p>
             <div className="cta-container">
-              <button className="cta-button primary">
-                <Link to="/detection">Start Detecting Signs</Link>
+              <button className="cta-button primary" onClick={handleStartDetecting}>
+                Start Detecting Signs
               </button>
             </div>
           </div>

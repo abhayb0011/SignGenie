@@ -4,8 +4,11 @@ import facebookLogo from "../../assets/Images/facebook logo.webp";
 import instaLogo from "../../assets/Images/insta.webp";
 import xLogo from "../../assets/Images/X logo.webp";
 import "./Footer.css";
+import { useAuth } from "../../context/AuthContext";
 
 const Footer = () => {
+  const { isLoggedIn } = useAuth();
+
   return (
     <footer className="footer">
       <div className="footer-container">
@@ -13,20 +16,34 @@ const Footer = () => {
           <div className="footer-section">
             <h3>Quick Links</h3>
             <ul>
-              <li>
-                <Link to="/">Home</Link>
-              </li>
-              <li>
-                <Link to="/detection">Live Detection</Link>
-              </li>
-              <li>
-                <Link to="/quiz">Quiz</Link>
-              </li>
-              <li>
-                <Link to="/dictionary">Dictionary</Link>
-              </li>
+              {isLoggedIn ? (
+                <>
+                  <li>
+                    <Link to="/">Home</Link>
+                  </li>
+                  <li>
+                    <Link to="/detection">Live Detection</Link>
+                  </li>
+                  <li>
+                    <Link to="/quiz">Quiz</Link>
+                  </li>
+                  <li>
+                    <Link to="/dictionary">Dictionary</Link>
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li>
+                    <Link to="/">Home</Link>
+                  </li>
+                  <li>
+                    <Link to="/dictionary">Dictionary</Link>
+                  </li>
+                </>
+              )}
             </ul>
           </div>
+
           <div className="footer-section">
             <h3>Legal</h3>
             <ul>
@@ -38,6 +55,7 @@ const Footer = () => {
               </li>
             </ul>
           </div>
+
           <div className="footer-section">
             <h3>Connect With Us</h3>
             <div className="social-icons">
@@ -53,6 +71,7 @@ const Footer = () => {
             </div>
           </div>
         </div>
+
         <div className="footer-bottom">
           <p>© {new Date().getFullYear()} SignGenie. All rights reserved.</p>
         </div>

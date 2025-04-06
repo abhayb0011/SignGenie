@@ -1,0 +1,58 @@
+.update-profile-container {
+    max-width: 500px;
+    margin: 4rem auto;
+    padding: 2rem;
+    background-color: #1b263b;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    color: var(--text-color);
+  }
+  
+  .update-profile-container h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--primary-color);
+    font-family: "Poppins", sans-serif;
+  }
+  
+  .update-form label {
+    display: block;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+  }
+  
+  .update-form input {
+    width: 100%;
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+    background-color: #0d1b2a;
+    border: 1px solid var(--primary-color);
+    border-radius: 8px;
+    color: var(--text-color);
+    font-size: 1rem;
+  }
+  
+  .submit-btn {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: var(--primary-color);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 1rem;
+  }
+  
+  .submit-btn:hover {
+    background-color: var(--button-hover);
+    color: #000;
+  }
+  
+  .update-message {
+    text-align: center;
+    margin-top: 1rem;
+    font-weight: 600;
+  }
+  

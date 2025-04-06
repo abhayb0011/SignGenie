@@ -1,18 +1,27 @@
 import cv2
 import numpy as np
 import mediapipe as mp
-from flask import Flask, render_template, Response, jsonify
+from flask import Flask, Response, jsonify, request
 from flask_cors import CORS
 import os
 import tensorflow as tf
+from db import mongo
+import jwt
+from datetime import datetime, timezone, timedelta
+from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
+from models.user_schema import create_user_document
+from dotenv import load_dotenv
+
+load_dotenv()  # load variables from .env
+
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 DEBUG_MODE = False  # Set to False in production mode
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
-# Initialize Video Capture (Webcam)
-cap = cv2.VideoCapture(0)
 
 # Load the ML Model
 model_path = './action.h5'
@@ -47,6 +56,7 @@ def draw_styled_landmarks(image, results):
     mp_drawing.draw_landmarks(image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
     mp_drawing.draw_landmarks(image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
 
+"""
 # Generator Function for Video Streaming
 def gen():
     global sentence
@@ -104,54 +114,427 @@ def gen():
 
             yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
 
+"""
 
 # Flask Routes
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return {"message": "Welcome to the Flask API!"}
 
+def generate_token(email):
+    payload = {
+        'email': email,
+        'exp': datetime.now(timezone.utc) + timedelta(days=1) 
+    }
+    return jwt.encode(payload, SECRET_KEY, algorithm='HS256')
+
+def verify_token(token):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+        return payload['email']
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
+        return None
+
+@app.route('/register', methods=['POST'])
+def register():
+    try:
+        data = request.get_json()
+        name = data.get('name')
+        username = data.get('username')
+        email = data.get('email')
+        password = data.get('password')
+
+        # Validate all fields are present
+        if not all([name, username, email, password]):
+            return jsonify({'error': 'All fields (name, username, email, password) are required'}), 400
+
+        # Check if email or username already exists
+        if mongo.db.users.find_one({'email': email}):
+            return jsonify({'error': 'Email already exists'}), 409
+        if mongo.db.users.find_one({'username': username}):
+            return jsonify({'error': 'Username already exists'}), 409
+
+        # Hash the password
+        hashed_password = generate_password_hash(password)
+
+        # Create user document
+        user_doc = create_user_document(name, username, email, hashed_password)
+
+        # Insert into DB
+        result = mongo.db.users.insert_one(user_doc)
+
+        if result.inserted_id:
+            return jsonify({'message': 'User registered successfully'}), 201
+        else:
+            return jsonify({'error': 'User registration failed'}), 400
+
+    except Exception as e:
+        print(f"Registration error: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+
+@app.route('/login', methods=['POST'])
+def login():
+    try:
+        data = request.get_json(force=True)
+
+        if not data:
+            return jsonify({'error': 'Missing JSON body'}), 400
+
+        email = data.get('email')
+        password = data.get('password')
+
+        if not email or not password:
+            return jsonify({'error': 'Missing email or password'}), 400
+
+        user = mongo.db.users.find_one({'email': email})
+        if user and check_password_hash(user['password'], password):
+            token = jwt.encode({
+                'email': user['email'],
+                'exp': datetime.now(timezone.utc) + timedelta(hours=24)
+            }, SECRET_KEY, algorithm='HS256')
+
+            return jsonify({
+                'message': 'Login successful',
+                'token': token
+            }), 200
+        else:
+            return jsonify({'error': 'Invalid email or password'}), 401
+
+    except Exception as e:
+        return jsonify({'error': {str(e)}}), 500
+
+
+@app.route('/profile', methods=['GET'])
+def get_profile():
+    try:
+        auth_header = request.headers.get('Authorization')
+
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return jsonify({"error": "Authorization header missing or invalid"}), 401
+
+        token = auth_header.split(" ")[1]
+        email = verify_token(token)
+
+        if not email:
+            return jsonify({"error": "Invalid or expired token"}), 401
+
+        user = mongo.db.users.find_one({"email": email})
+
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+
+        user_profile = {
+            "email": user["email"],
+            "name": user.get("name", ""),
+            "username": user.get("username", ""),
+            "sign_history": user.get("sign_history", []),
+            "quiz_high_score": user.get("quiz_high_score", 0),
+            "created_at": user.get("created_at")
+        }
+
+        return jsonify(user_profile), 200
+
+    except Exception as e:
+        print("error:", e)
+        return jsonify({"error": {str(e)}}), 501
+
+
+@app.route('/update-profile', methods=['PUT'])
+def update_profile():
+    try:
+        auth_header = request.headers.get('Authorization')
+
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return jsonify({'error': 'Authorization header missing or invalid'}), 401
+
+        token = auth_header.split(" ")[1]
+
+        try:
+            decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+            email = decoded_token.get('email')
+        except jwt.ExpiredSignatureError:
+            return jsonify({'error': 'Token expired'}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({'error': 'Invalid token'}), 401
+
+        if not email:
+            return jsonify({'error': 'Token missing email field'}), 401
+
+        data = request.get_json()
+        new_name = data.get('name')
+        new_username = data.get('username')
+
+        if not new_name and not new_username:
+            return jsonify({'error': 'No update fields provided'}), 400
+
+        user = mongo.db.users.find_one({'email': email})
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        if new_username:
+            username_conflict = mongo.db.users.find_one({
+                'username': new_username,
+                'email': {'$ne': email}
+            })
+            if username_conflict:
+                return jsonify({'error': 'Username already taken'}), 409
+
+        update_fields = {}
+        if new_name:
+            update_fields['name'] = new_name
+        if new_username:
+            update_fields['username'] = new_username
+
+        mongo.db.users.update_one({'email': email}, {'$set': update_fields})
+
+        updated_user = mongo.db.users.find_one({'email': email})
+        updated_profile = {
+            "email": updated_user["email"],
+            "username": updated_user.get("username", ""),
+            "name": updated_user.get("name", ""),
+            "sign_history": updated_user.get("sign_history", []),
+            "quiz_high_score": updated_user.get("quiz_high_score", 0),
+            "created_at": updated_user.get("created_at").isoformat() if updated_user.get("created_at") else None
+        }
+
+        return jsonify({
+            'message': 'Profile updated successfully',
+            'profile': updated_profile
+        }), 200
+
+    except Exception as e:
+        return jsonify({'error': {str(e)}}), 500
+
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+
+        # JWT token expected in the headers
+        if 'Authorization' in request.headers:
+            token = request.headers['Authorization'].split(" ")[1]
+
+        if not token:
+            return jsonify({'error': 'Token is missing!'}), 401
+
+        try:
+            data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+            current_user = mongo.db.users.find_one({'username': data['username']})
+        except Exception as e:
+            return jsonify({'error': 'Token is invalid or expired!', 'details': str(e)}), 403
+
+        return f(current_user, *args, **kwargs)
+
+    return decorated
+
+@app.route('/predict-frame', methods=['POST'])
+def predict_frame():
+    try:
+        auth_header = request.headers.get('Authorization')
+
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return jsonify({"error": "Authorization token missing or invalid"}), 401
+
+        token = auth_header.split(" ")[1]
+        email = verify_token(token)
+
+        if not email:
+            return jsonify({"error": "Invalid or expired token"}), 401
+
+        # Get image from request (expects multipart/form-data)
+        if 'image' not in request.files:
+            return jsonify({'error': 'No image file provided'}), 400
+
+        file = request.files['image']
+        file_bytes = np.frombuffer(file.read(), np.uint8)
+        image = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
+
+        # Run MediaPipe detection
+        with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
+            image, results = mediapipe_detection(image, holistic)
+            keypoints = extract_keypoints(results)
+
+        # Add to sequence and predict (you can keep sequence in global or session-based state)
+        if not hasattr(predict_frame, 'sequence'):
+            predict_frame.sequence = []
+
+        predict_frame.sequence.append(keypoints)
+        predict_frame.sequence = predict_frame.sequence[-30:]
+
+        if len(predict_frame.sequence) == 30:
+            res = model.predict(np.expand_dims(predict_frame.sequence, axis=0))[0]
+            actions = np.array(['hello', 'my', 'name', 'Abhay', 'Soham', 'Subhadeep', 'Thank you', 'I love you'])
+            predicted_action = actions[np.argmax(res)]
+            confidence = res[np.argmax(res)]
+
+            return jsonify({'prediction': predicted_action, 'confidence': float(confidence)}), 200
+        else:
+            return jsonify({'prediction': 'Waiting for enough frames...'}), 202
+
+    except Exception as e:
+        print(f"/predict-frame error: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+    
+@app.route('/sign-history', methods=['POST'])
+def update_sign_history():
+    try:
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return jsonify({'error': 'Authorization token missing or invalid'}), 401
+
+        token = auth_header.split(" ")[1]
+        email = verify_token(token)
+
+        if not email:
+            return jsonify({'error': 'Invalid or expired token'}), 401
+
+        user = mongo.db.users.find_one({"email": email})
+        if not user:
+            return jsonify({"msg": "User not found"}), 404
+
+        data = request.get_json()
+        new_sign = data.get("sign")
+
+        # Skip if no sign
+        if not new_sign:
+            return jsonify({"msg": "Invalid or placeholder sign, not added"}), 200
+
+        history = user.get("sign_history", [])
+
+        # Only add the new sign if it's not the same as the last one
+        if not history or history[-1] != new_sign:
+            history.append(new_sign)
+            history = history[-10:]  # Keep only the last 10 entries
+
+            mongo.db.users.update_one({"email": email}, {"$set": {"sign_history": history}})
+            return jsonify({"msg": "Sign history updated", "sign_history": history}), 200
+        else:
+            return jsonify({"msg": "Same as last sign, not added", "sign_history": history}), 200
+
+    except Exception as e:
+        print(f"/sign-history error: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
+
+@app.route('/update-high-score', methods=['PUT'])
+def update_high_score():
+    try:
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return jsonify({'error': 'Authorization token missing or invalid'}), 401
+
+        token = auth_header.split(" ")[1]
+        email = verify_token(token)
+
+        if not email:
+            return jsonify({'error': 'Invalid or expired token'}), 401
+
+        user = mongo.db.users.find_one({"email": email})
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        data = request.get_json()
+        new_score = data.get('score')
+
+        if new_score is None or not isinstance(new_score, int):
+            return jsonify({'error': 'Invalid score'}), 400
+
+        current_high_score = user.get('quiz_high_score', 0)
+
+        if new_score > current_high_score:
+            mongo.db.users.update_one(
+                {"email": email},
+                {"$set": {"quiz_high_score": new_score}}
+            )
+            return jsonify({'message': 'High score updated', 'quiz_high_score': new_score}), 200
+        else:
+            return jsonify({'message': 'Score not higher than current high score', 'quiz_high_score': current_high_score}), 200
+
+    except Exception as e:
+        print(f"/update-high-score error: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+
+"""
 @app.route('/video')
 def video():
-    return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    try:
+        auth_header = request.headers.get('Authorization')
+
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return jsonify({"error": "Authorization header missing or invalid"}), 401
+
+        token = auth_header.split(" ")[1]
+        email = verify_token(token)
+
+        if not email:
+            return jsonify({"error": "Invalid or expired token"}), 401
+
+        return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    except Exception as e:
+        print(f"/video error: {e}")
+        return jsonify({"error": "Internal server error"}), 500
+
 
 @app.route('/prediction')
 def prediction():
     global sentence
-    return jsonify({'prediction': sentence[0] if sentence else "Waiting..."})
+    try:
+        auth_header = request.headers.get('Authorization')
 
-# Sign Language Dataset
-signs = [
-    {"id": 1, "sign_name": "Hello", "video_url": "./static/Videos/Hello sign.mp4",
-     "image_url": "./static/images/Signs/hello sign.jpg", "category": "Greetings",
-     "description": "A simple wave to greet someone.", "alphabet": "H"},
-    {"id": 2, "sign_name": "My", "video_url": "./static/Videos/my sign.mp4",
-     "image_url": "./static/images/Signs/my sign.jpg", "category": "Pronouns",
-     "description": "Place your hand on your chest to indicate 'My'.", "alphabet": "M"},
-    {"id": 3, "sign_name": "Name", "video_url": "./static/Videos/name sign.mp4",
-     "image_url": "./static/images/Signs/name sign.jpg", "category": "Identity",
-     "description": "Tap two fingers of one hand on the other to sign 'Name'.", "alphabet": "N"},
-    {"id": 4, "sign_name": "Abhay", "video_url": "./static/Videos/Abhay Sign.mp4",
-     "image_url": "./static/images/Signs/abhay sign.png", "category": "Names",
-     "description": "Sign for the name 'Abhay'.", "alphabet": "A"},
-    {"id": 5, "sign_name": "Soham", "video_url": "./static/Videos/Soham sign.mp4",
-     "image_url": "./static/images/Signs/Soham sign.png", "category": "Names",
-     "description": "Sign for the name 'Soham'.", "alphabet": "S"},
-    {"id": 6, "sign_name": "Subhadeep", "video_url": "./static/Videos/Subhadeep sign.mp4",
-     "image_url": "./static/images/Signs/Subhadeep sign.png", "category": "Names",
-     "description": "Sign for the name 'Subhadeep'.", "alphabet": "S"},
-    {"id": 7, "sign_name": "Thank you", "video_url": "./static/Videos/Thank you sign.mp4",
-     "image_url": "./static/images/Signs/thank you sign.jpg", "category": "Gratitude",
-     "description": "Move your hand away from the chin to show gratitude.", "alphabet": "T"},
-    {"id": 8, "sign_name": "I love you", "video_url": "./static/Videos/I love you sign.mp4",
-     "image_url": "./static/images/Signs/I love you sign.jpg", "category": "Love",
-     "description": "Use the 'ILY' hand shape to express love.", "alphabet": "I"}
-]
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return jsonify({"error": "Authorization token missing or invalid"}), 401
 
-@app.route('/signs', methods=['GET'])
+        token = auth_header.split(" ")[1]
+        email = verify_token(token)
+
+        if not email:
+            return jsonify({"error": "Invalid or expired token"}), 401
+
+        prediction_text = sentence[0] if sentence else "Waiting..."
+        return jsonify({'prediction': prediction_text}), 200
+
+    except Exception as e:
+        print(f"/prediction error: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+"""
+
+@app.route('/signs', methods=['GET'])   # No JWT authentication because I want dictionary page to access signs even without login
 def get_signs():
-    return jsonify(signs)
+    try:
+        signs_cursor = mongo.db.signs.find()
+        signs = []
+
+        for sign in signs_cursor:
+            signs.append({
+                "id": str(sign.get("_id")),
+                "sign_name": sign.get("sign_name"),
+                "video_url": sign.get("video_url"),
+                "image_url": sign.get("image_url"),
+                "description": sign.get("description"),
+                "alphabet": sign.get("alphabet")
+            })
+
+        return jsonify(signs), 200
+
+    except Exception as e:
+        print(f"Sign fetch error:{str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+
 
 #  Run Flask App
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))  # Default to 5000 if no PORT is set
-    app.run(host="0.0.0.0", port=port, debug=False)  # Disable debug mode for memory efficiency
+if __name__ == '__main__':
+    try:
+        app.run(debug=True)
+    except Exception as e:
+        import traceback
+        print("Exception in main:")
+        traceback.print_exc()
+
+

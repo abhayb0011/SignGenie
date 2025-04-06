@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import axios from "axios";
 import Navbar from "../../Components/Navbar/Navbar";
 import Footer from "../../Components/Footer/Footer";
 import VolumeUpIcon from "@mui/icons-material/VolumeUp";
@@ -12,42 +13,120 @@ const Detection = () => {
   const [isSpeechEnabled, setIsSpeechEnabled] = useState(false);
   const [lastSpokenWord, setLastSpokenWord] = useState("");
 
-  // Function to convert text to speech
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+
   const speakText = (text) => {
     if ("speechSynthesis" in window) {
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "en-US"; // Set language
+      utterance.lang = "en-US";
       speechSynthesis.speak(utterance);
-    } else {
-      console.error("Speech Synthesis not supported in this browser.");
     }
   };
 
   useEffect(() => {
-    let interval;
+    if (isDetecting) {
+      navigator.mediaDevices
+        .getUserMedia({ video: true })
+        .then((stream) => {
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+          }
+        })
+        .catch((err) => console.error("Error accessing webcam:", err));
+    } else {
+      if (videoRef.current && videoRef.current.srcObject) {
+        videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+      }
+    }
+  }, [isDetecting]);
+
+  useEffect(() => {
+    let frameInterval;
+    let displayInterval;
+    let latestPrediction = "";
+    let lastSavedPrediction = "";
 
     if (isDetecting) {
-      interval = setInterval(() => {
-        fetch("http://127.0.0.1:5000/prediction")
-          .then((res) => res.json())
-          .then((data) => {
-            const newWord = data.prediction;
-            setPrediction(newWord);
+      frameInterval = setInterval(() => {
+        const canvas = canvasRef.current;
+        const video = videoRef.current;
 
-            // Speak only if speech is enabled and the word has changed
-            if (isSpeechEnabled && newWord !== lastSpokenWord) {
-              speakText(newWord);
-              setLastSpokenWord(newWord);
+        if (canvas && video) {
+          const ctx = canvas.getContext("2d");
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+          canvas.toBlob((blob) => {
+            if (blob) {
+              const formData = new FormData();
+              formData.append("image", blob, "frame.jpg");
+
+              const token = localStorage.getItem("token");
+
+              axios
+                .post("http://127.0.0.1:5000/predict-frame", formData, {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "multipart/form-data",
+                  },
+                })
+                .then((response) => {
+                  latestPrediction = response.data.prediction;
+                })
+                .catch((err) =>
+                  console.error("Error sending frame for prediction:", err)
+                );
             }
-          })
-          .catch((err) => console.error("Error fetching prediction:", err));
-      }, 1000); // Fetch predictions every second
+          }, "image/jpeg");
+        }
+      }, 300); // 300ms is more realistic for performance
+
+      displayInterval = setInterval(() => {
+        if (
+          latestPrediction &&
+          latestPrediction !== "Waiting for enough frames..."
+        ) {
+          setPrediction(latestPrediction);
+
+          // Update speech
+          if (isSpeechEnabled && latestPrediction !== lastSpokenWord) {
+            speechSynthesis.cancel();
+            speakText(latestPrediction);
+            setLastSpokenWord(latestPrediction);
+          }
+
+          // Update sign history only if different from last saved one
+          if (latestPrediction !== lastSavedPrediction) {
+            lastSavedPrediction = latestPrediction;
+
+            axios
+              .post(
+                "http://127.0.0.1:5000/sign-history",
+                { sign: latestPrediction },
+                {
+                  headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    "Content-Type": "application/json",
+                  },
+                }
+              )
+              .catch((err) =>
+                console.error("Error updating sign history:", err)
+              );
+          }
+        }
+      }, 1000); // update UI and sign history once per second
     } else {
       setPrediction("Waiting...");
-      setLastSpokenWord(""); // Reset spoken word when detection stops
+      setLastSpokenWord("");
     }
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(frameInterval);
+      clearInterval(displayInterval);
+    };
   }, [isDetecting, isSpeechEnabled, lastSpokenWord]);
 
   return (
@@ -63,11 +142,10 @@ const Detection = () => {
           <div className="detection-content">
             <div className="video-container">
               {isDetecting ? (
-                <img
-                  src="http://127.0.0.1:5000/video"
-                  alt="Live Video Stream"
-                  className="video-box"
-                />
+                <>
+                  <video ref={videoRef} autoPlay muted className="video-box" />
+                  <canvas ref={canvasRef} style={{ display: "none" }} />
+                </>
               ) : (
                 <div className="video-placeholder">
                   <div className="placeholder-content">
