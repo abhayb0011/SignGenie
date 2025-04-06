@@ -4,7 +4,7 @@ import facebookLogo from "../../assets/Images/facebook logo.webp";
 import instaLogo from "../../assets/Images/insta.webp";
 import xLogo from "../../assets/Images/X logo.webp";
 import "./Footer.css";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../Context/AuthContext";
 
 const Footer = () => {
   const { isLoggedIn } = useAuth();
