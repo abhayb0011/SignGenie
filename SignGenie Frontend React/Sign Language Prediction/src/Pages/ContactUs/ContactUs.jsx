@@ -1,9 +1,56 @@
-import React from "react";
-import Navbar from "../../Components/Navbar/Navbar"
-import Footer from '../../Components/Footer/Footer'
+import React, { useState } from "react";
+import Navbar from "../../Components/Navbar/Navbar";
+import Footer from "../../Components/Footer/Footer";
 import "./ContactUs.css";
 
 const ContactUs = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    message: "",
+  });
+  const [status, setStatus] = useState("");
+
+  const handleChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const token = localStorage.getItem("token"); // assuming token is stored here
+
+    if (!token) {
+      setStatus("Please login to send a message.");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:5000/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setStatus("Message sent successfully!");
+        setFormData({ name: "", message: "" });
+      } else {
+        setStatus(data.error || "Something went wrong.");
+      }
+    } catch (error) {
+      setStatus("Failed to send message. Please try again.");
+      console.error("Error sending message:", error);
+    }
+  };
+
   return (
     <>
       <Navbar />
@@ -31,12 +78,25 @@ const ContactUs = () => {
 
         <div className="contact-form">
           <h2>📝 Send Us a Message</h2>
-          <form>
-            <input type="text" placeholder="Your Name" required />
-            <input type="email" placeholder="Your Email" required />
-            <textarea placeholder="Your Message" required></textarea>
+          <form onSubmit={handleSubmit}>
+            <input
+              type="text"
+              name="name"
+              placeholder="Your Name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
+            <textarea
+              name="message"
+              placeholder="Your Message"
+              value={formData.message}
+              onChange={handleChange}
+              required
+            />
             <button type="submit">Send Message</button>
           </form>
+          {status && <p className="status-message">{status}</p>}
         </div>
       </div>
       <Footer />

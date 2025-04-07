@@ -11,6 +11,7 @@ from datetime import datetime, timezone, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from models.user_schema import create_user_document
+from models.contactUsMessage_schema import create_contact_message_document
 from dotenv import load_dotenv
 
 load_dotenv()  # load variables from .env
@@ -503,6 +504,49 @@ def prediction():
         return jsonify({'error': 'Internal server error'}), 500
 
 """
+@app.route('/contact', methods=['POST'])
+def contact_us():
+    try:
+        auth_header = request.headers.get('Authorization')
+
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return jsonify({'error': 'Authorization header missing or invalid'}), 401
+
+        token = auth_header.split(" ")[1]
+
+        try:
+            decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+            email = decoded_token.get('email')
+        except jwt.ExpiredSignatureError:
+            return jsonify({'error': 'Token expired'}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({'error': 'Invalid token'}), 401
+
+        if not email:
+            return jsonify({'error': 'Token missing email field'}), 401
+
+        data = request.get_json()
+        name = data.get('name')
+        message = data.get('message')
+
+        if not name or not message:
+            return jsonify({'error': 'Name and message are required'}), 400
+
+        contact_document = create_contact_message_document(name, email, message)
+        mongo.db.contactUsMessages.insert_one(contact_document)
+
+        return jsonify({
+            'message': 'Message sent successfully',
+            'contact': {
+                'name': name,
+                'email': email,
+                'message': message,
+                'submitted_at': contact_document['submitted_at'].isoformat()
+            }
+        }), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/signs', methods=['GET'])   # No JWT authentication because I want dictionary page to access signs even without login
 def get_signs():
