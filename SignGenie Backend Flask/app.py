@@ -13,6 +13,7 @@ from functools import wraps
 from models.user_schema import create_user_document
 from models.contactUsMessage_schema import create_contact_message_document
 from dotenv import load_dotenv
+import gc
 
 load_dotenv()  # load variables from .env
 
@@ -335,18 +336,17 @@ def token_required(f):
 @app.route('/predict-frame', methods=['POST'])
 def predict_frame():
     try:
+        # --- Token Validation ---
         auth_header = request.headers.get('Authorization')
-
         if not auth_header or not auth_header.startswith("Bearer "):
             return jsonify({"error": "Authorization token missing or invalid"}), 401
 
         token = auth_header.split(" ")[1]
         email = verify_token(token)
-
         if not email:
             return jsonify({"error": "Invalid or expired token"}), 401
 
-        # Get image from request (expects multipart/form-data)
+        # --- Image Parsing ---
         if 'image' not in request.files:
             return jsonify({'error': 'No image file provided'}), 400
 
@@ -354,31 +354,50 @@ def predict_frame():
         file_bytes = np.frombuffer(file.read(), np.uint8)
         image = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
 
-        # Run MediaPipe detection
-        with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
+        if image is None:
+            return jsonify({'error': 'Invalid image data'}), 400
+
+        # --- MediaPipe Detection ---
+        with mp_holistic.Holistic(static_image_mode=False, 
+                                  min_detection_confidence=0.5, 
+                                  min_tracking_confidence=0.5) as holistic:
             image, results = mediapipe_detection(image, holistic)
             keypoints = extract_keypoints(results)
 
-        # Add to sequence and predict (you can keep sequence in global or session-based state)
-        if not hasattr(predict_frame, 'sequence'):
-            predict_frame.sequence = []
+        # --- Sequence Handling ---
+        if not hasattr(predict_frame, 'sequence_map'):
+            predict_frame.sequence_map = {}
 
-        predict_frame.sequence.append(keypoints)
-        predict_frame.sequence = predict_frame.sequence[-30:]
+        # Maintain per-user sequence (using email)
+        sequence = predict_frame.sequence_map.get(email, [])
+        sequence.append(keypoints)
+        sequence = sequence[-30:]  # keep only last 30
+        predict_frame.sequence_map[email] = sequence  # update user-specific sequence
 
-        if len(predict_frame.sequence) == 30:
-            res = model.predict(np.expand_dims(predict_frame.sequence, axis=0))[0]
+        if len(sequence) == 30:
+            res = model.predict(np.expand_dims(sequence, axis=0))[0]
             actions = np.array(['hello', 'my', 'name', 'Abhay', 'Soham', 'Subhadeep', 'Thank you', 'I love you'])
             predicted_action = actions[np.argmax(res)]
             confidence = res[np.argmax(res)]
 
+            # Optional: Clear sequence to avoid memory buildup
+            predict_frame.sequence_map[email] = []
+
+            # Clean up
+            del image, file, file_bytes, results, sequence, keypoints
+            gc.collect()
+
             return jsonify({'prediction': predicted_action, 'confidence': float(confidence)}), 200
         else:
+            # Clean up even in waiting case
+            del image, file, file_bytes, keypoints
+            gc.collect()
             return jsonify({'prediction': 'Waiting for enough frames...'}), 202
 
     except Exception as e:
         print(f"/predict-frame error: {str(e)}")
         return jsonify({'error': 'Internal server error'}), 500
+
 
     
 @app.route('/sign-history', methods=['POST'])
