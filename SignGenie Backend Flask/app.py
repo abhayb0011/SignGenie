@@ -394,7 +394,9 @@ def predict_frame():
             return jsonify({'prediction': 'Waiting for enough frames...'}), 202
 
     except Exception as e:
+       except Exception as e:
         print(f"/predict-frame error: {str(e)}")
+        traceback.print_exc()  # <-- prints full stack trace to the console
         return jsonify({'error': 'Internal server error'}), 500
 
 
