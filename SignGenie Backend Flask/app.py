@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import mediapipe as mp
-from flask import Flask, Response, jsonify, request
+from flask import Flask, Response, jsonify, request, cross_origin
 from flask_cors import CORS
 import os
 import tensorflow as tf
