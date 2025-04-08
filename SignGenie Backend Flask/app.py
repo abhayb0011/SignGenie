@@ -333,6 +333,7 @@ def token_required(f):
     return decorated
 
 @app.route('/predict-frame', methods=['POST'])
+@cross_origin(origins="https://signgenie.vercel.app")
 def predict_frame():
     try:
         # --- Token Validation ---
