@@ -395,6 +395,7 @@ def predict_frame():
 
     except Exception as e:
         print(f"/predict-frame error: {str(e)}")
+        traceback.print_exc()  # <-- prints full stack trace to the console
         return jsonify({'error': 'Internal server error'}), 500
 
 
