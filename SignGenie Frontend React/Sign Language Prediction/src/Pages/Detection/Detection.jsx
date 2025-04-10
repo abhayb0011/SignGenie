@@ -76,9 +76,15 @@ const Detection = () => {
                 .then((response) => {
                   latestPrediction = response.data.prediction;
                 })
-                .catch((err) =>
-                  console.error("Error sending frame for prediction:", err)
-                );
+                .catch((err) => {
+                if (err.response) {
+                  console.error("Server responded with error:", err.response.data);
+                } else if (err.request) {
+                  console.error("No response received from server. Request was:", err.request);
+                } else {
+                  console.error("Error setting up request:", err.message);
+                }
+              });
             }
           }, "image/jpeg");
         }
