@@ -594,7 +594,7 @@ def get_signs():
 #  Run Flask App
 if __name__ == '__main__':
     try:
-        app.run(debug=True, port=8080)
+        app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
     except Exception as e:
         import traceback
         print("Exception in main:")
