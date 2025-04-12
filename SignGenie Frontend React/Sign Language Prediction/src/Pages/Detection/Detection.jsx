@@ -94,7 +94,7 @@ const Detection = () => {
             }
           }, "image/jpeg");
         }
-      }, 100);
+      }, 83); //83ms for 1 frame
 
       displayInterval = setInterval(() => {
         if (
