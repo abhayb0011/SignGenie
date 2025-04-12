@@ -50,7 +50,8 @@ const Quiz = () => {
     } else {
       if (videoRef.current && videoRef.current.srcObject) {
         videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
-      }
+        videoRef.current.srcObject = null; 
+      }      
     }
   }, [isDetecting]);
 
