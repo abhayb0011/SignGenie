@@ -181,7 +181,18 @@ const Detection = () => {
             <div className="controls">
               <button
                 className={`control-button ${isDetecting ? "active" : ""}`}
-                onClick={() => setIsDetecting(!isDetecting)}
+                onClick={() => {
+                  if (isDetecting) {
+                    // Stop all tracks when stopping detection
+                    if (videoRef.current && videoRef.current.srcObject) {
+                      videoRef.current.srcObject
+                        .getTracks()
+                        .forEach((track) => track.stop());
+                      videoRef.current.srcObject = null;
+                    }
+                  }
+                  setIsDetecting(!isDetecting);
+                }}
               >
                 {isDetecting ? (
                   <>
