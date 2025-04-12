@@ -10,7 +10,7 @@ import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import TimerIcon from "@mui/icons-material/Timer";
 
 const Quiz = () => {
-  const baseURL = import.meta.env.VITE_API_BASE_URL
+  const baseURL = import.meta.env.VITE_API_BASE_URL;
   const [questions, setQuestions] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [userAnswer, setUserAnswer] = useState(null);
@@ -50,8 +50,8 @@ const Quiz = () => {
     } else {
       if (videoRef.current && videoRef.current.srcObject) {
         videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
-        videoRef.current.srcObject = null; 
-      }      
+        videoRef.current.srcObject = null;
+      }
     }
   }, [isDetecting]);
 
@@ -73,25 +73,25 @@ const Quiz = () => {
     let frameInterval;
     let displayInterval;
     let latestPrediction = "";
-  
+
     if (isDetecting) {
       frameInterval = setInterval(() => {
         const canvas = canvasRef.current;
         const video = videoRef.current;
-  
+
         if (canvas && video) {
           const ctx = canvas.getContext("2d");
           canvas.width = video.videoWidth;
           canvas.height = video.videoHeight;
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  
+
           canvas.toBlob((blob) => {
             if (blob) {
               const formData = new FormData();
               formData.append("image", blob, "frame.jpg");
-  
+
               const token = localStorage.getItem("token");
-  
+
               axios
                 .post(`${baseURL}/predict-frame`, formData, {
                   headers: {
@@ -109,10 +109,10 @@ const Quiz = () => {
           }, "image/jpeg");
         }
       }, 30);
-  
+
       displayInterval = setInterval(() => {
         const correctAnswer = questions[currentQuestion]?.sign_name || "";
-  
+
         if (
           latestPrediction &&
           correctAnswer &&
@@ -130,7 +130,7 @@ const Quiz = () => {
           setUserAnswer(false);
           setFeedback("❌ Incorrect! Try again.");
         }
-  
+
         if (
           latestPrediction &&
           latestPrediction !== "Waiting for enough frames..."
@@ -141,13 +141,12 @@ const Quiz = () => {
     } else {
       setPrediction("Waiting...");
     }
-  
+
     return () => {
       clearInterval(frameInterval);
       clearInterval(displayInterval);
     };
   }, [isDetecting, currentQuestion, questions]);
-  
 
   const startDetection = () => {
     setIsDetecting(true);
@@ -178,14 +177,14 @@ const Quiz = () => {
     } catch (error) {
       console.error("Error updating high score:", error);
     }
-  };  
+  };
 
   const nextQuestion = () => {
     setFeedback("");
     setUserAnswer(null);
     setPrediction("Waiting...");
     setTimeLeft(30);
-  
+
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
       updateHighScore();
@@ -194,7 +193,6 @@ const Quiz = () => {
       updateHighScore();
     }
   };
-  
 
   return (
     <div className="quiz-page">
@@ -259,8 +257,25 @@ const Quiz = () => {
                 <div className="detection-controls">
                   <button
                     className={`control-button ${isDetecting ? "active" : ""}`}
-                    onClick={isDetecting ? stopDetection : startDetection}
-                    disabled={isTimerActive && timeLeft === 0}
+                    onClick={() => {
+                      if (isDetecting) {
+                        // Stop detection and clean up camera stream
+                        if (videoRef.current && videoRef.current.srcObject) {
+                          videoRef.current.srcObject
+                            .getTracks()
+                            .forEach((track) => track.stop());
+                          videoRef.current.srcObject = null;
+                        }
+                        setIsDetecting(false);
+                        setIsTimerActive(false);
+                        setFeedback("Detection stopped.");
+                      } else {
+                        setIsDetecting(true);
+                        setIsTimerActive(true);
+                        setTimeLeft(30);
+                        setFeedback("Detecting...");
+                      }
+                    }}
                   >
                     {isDetecting ? (
                       <>
