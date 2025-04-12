@@ -14,7 +14,7 @@ from models.user_schema import create_user_document
 from models.contactUsMessage_schema import create_contact_message_document
 from dotenv import load_dotenv
 import gc
-from waitress import serve
+#from waitress import serve
 
 load_dotenv()  # load variables from .env
 
@@ -595,8 +595,8 @@ def get_signs():
 #  Run Flask App
 if __name__ == '__main__':
     try:
-        # app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
-        serve(app, port=8080, host="0.0.0.0")
+        app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+        #serve(app, port=8080, host="0.0.0.0")
     except Exception as e:
         import traceback
         print("Exception in main:")
