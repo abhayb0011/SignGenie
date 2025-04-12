@@ -49,7 +49,9 @@ const Quiz = () => {
         .catch((err) => console.error("Error accessing webcam:", err));
     } else {
       if (videoRef.current && videoRef.current.srcObject) {
-        videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+        videoRef.current.srcObject
+          .getTracks()
+          .forEach((track) => track.stop());
         videoRef.current.srcObject = null;
       }
     }
