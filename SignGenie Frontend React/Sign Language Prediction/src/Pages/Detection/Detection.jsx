@@ -94,7 +94,7 @@ const Detection = () => {
             }
           }, "image/jpeg");
         }
-      }, 30);
+      }, 100);
 
       displayInterval = setInterval(() => {
         if (
