@@ -8,7 +8,7 @@ import StopIcon from "@mui/icons-material/Stop";
 import "./Detection.css";
 
 const Detection = () => {
-  const baseURL = import.meta.env.VITE_API_BASE_URL
+  const baseURL = import.meta.env.VITE_API_BASE_URL;
   const [prediction, setPrediction] = useState("Waiting...");
   const [isDetecting, setIsDetecting] = useState(false);
   const [isSpeechEnabled, setIsSpeechEnabled] = useState(false);
@@ -77,18 +77,24 @@ const Detection = () => {
                   latestPrediction = response.data.prediction;
                 })
                 .catch((err) => {
-                if (err.response) {
-                  console.error("Server responded with error:", err.response.data);
-                } else if (err.request) {
-                  console.error("No response received from server. Request was:", err.request);
-                } else {
-                  console.error("Error setting up request:", err.message);
-                }
-              });
+                  if (err.response) {
+                    console.error(
+                      "Server responded with error:",
+                      err.response.data
+                    );
+                  } else if (err.request) {
+                    console.error(
+                      "No response received from server. Request was:",
+                      err.request
+                    );
+                  } else {
+                    console.error("Error setting up request:", err.message);
+                  }
+                });
             }
           }, "image/jpeg");
         }
-      }, 300); // 300ms is more realistic for performance
+      }, 30);
 
       displayInterval = setInterval(() => {
         if (
