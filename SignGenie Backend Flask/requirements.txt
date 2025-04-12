@@ -1,13 +1,13 @@
-Flask==3.0.3
+Flask==3.1.0
 gunicorn==23.0.0
 Werkzeug==3.0.3
-Flask-Cors==5.1.0
-Flask-PyMongo==3.0.2
+flask-cors==5.0.1
+Flask-PyMongo==3.0.1
 python-dotenv==1.0.1
 PyJWT==2.8.0
 pymongo==4.6.3
 mediapipe==0.10.20
-opencv-python==4.9.0.80
+opencv-python==4.11.0.86
 tensorflow==2.15.0
 numpy==1.26.4
 imutils==0.5.4
