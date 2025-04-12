@@ -12,6 +12,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from models.user_schema import create_user_document
 from models.contactUsMessage_schema import create_contact_message_document
+from waitress import serve
+
 from dotenv import load_dotenv
 import gc
 #from waitress import serve
@@ -595,8 +597,8 @@ def get_signs():
 #  Run Flask App
 if __name__ == '__main__':
     try:
-        app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
-        #serve(app, port=8080, host="0.0.0.0")
+        #app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+        serve(app, port=8080, host="0.0.0.0")
     except Exception as e:
         import traceback
         print("Exception in main:")
