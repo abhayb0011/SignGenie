@@ -7,7 +7,7 @@ python-dotenv==1.0.1
 PyJWT==2.8.0
 pymongo==4.6.3
 mediapipe==0.10.20
-opencv-python==4.11.0.86
+opencv-python-headless==4.11.0.86
 tensorflow==2.15.0
 numpy==1.26.4
 imutils==0.5.4
