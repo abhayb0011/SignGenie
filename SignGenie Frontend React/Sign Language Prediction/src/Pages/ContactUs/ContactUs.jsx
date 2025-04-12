@@ -4,6 +4,7 @@ import Footer from "../../Components/Footer/Footer";
 import "./ContactUs.css";
 
 const ContactUs = () => {
+  const baseURL = import.meta.env.VITE_API_BASE_URL;
   const [formData, setFormData] = useState({
     name: "",
     message: "",
@@ -28,7 +29,7 @@ const ContactUs = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/contact", {
+      const response = await fetch(`${baseURL}/contact`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
