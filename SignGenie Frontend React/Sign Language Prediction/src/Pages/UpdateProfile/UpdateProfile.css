@@ -1,58 +1,111 @@
 .update-profile-container {
-    max-width: 500px;
-    margin: 4rem auto;
-    padding: 2rem;
-    background-color: #1b263b;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-    color: var(--text-color);
+  max-width: 500px;
+  margin: 4rem auto;
+  padding: 2rem;
+  background-color: #1b263b;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  color: var(--text-color);
+  font-family: "Poppins", sans-serif;
+  transition: all 0.3s ease;
+}
+
+.update-profile-container h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.update-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.update-form label {
+  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.95rem;
+  color: var(--text-color);
+}
+
+.update-form input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  margin-top: 0.5rem;
+  background-color: #0d1b2a;
+  border: 1px solid var(--primary-color);
+  border-radius: 8px;
+  color: var(--text-color);
+  font-size: 1rem;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.update-form input:focus {
+  outline: none;
+  border-color: #00b4d8;
+  background-color: #11243d;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: var(--primary-color);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.submit-btn:hover {
+  background-color: var(--button-hover);
+  color: #000;
+  transform: translateY(-2px);
+}
+
+.update-message {
+  text-align: center;
+  margin-top: 1.25rem;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--primary-color);
+}
+
+/* Responsive Breakpoints */
+
+@media (max-width: 1024px) {
+  .update-profile-container {
+    padding: 1.5rem;
+    margin: 3rem auto;
   }
-  
+
   .update-profile-container h2 {
-    text-align: center;
-    margin-bottom: 2rem;
-    color: var(--primary-color);
-    font-family: "Poppins", sans-serif;
+    font-size: 1.75rem;
   }
-  
-  .update-form label {
-    display: block;
-    margin-bottom: 1.5rem;
-    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .update-profile-container {
+    padding: 1.25rem;
+    margin: 2rem 1rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
   }
-  
-  .update-form input {
-    width: 100%;
-    padding: 0.75rem;
-    margin-top: 0.5rem;
-    background-color: #0d1b2a;
-    border: 1px solid var(--primary-color);
-    border-radius: 8px;
-    color: var(--text-color);
+
+  .update-profile-container h2 {
+    font-size: 1.5rem;
+  }
+
+  .submit-btn {
     font-size: 1rem;
   }
-  
-  .submit-btn {
-    width: 100%;
-    padding: 0.75rem;
-    background-color: var(--primary-color);
-    border: none;
-    border-radius: 8px;
-    color: #fff;
-    font-size: 1.1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-top: 1rem;
-  }
-  
-  .submit-btn:hover {
-    background-color: var(--button-hover);
-    color: #000;
-  }
-  
+
   .update-message {
-    text-align: center;
-    margin-top: 1rem;
-    font-weight: 600;
+    font-size: 0.95rem;
   }
-  
+}
