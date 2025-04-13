@@ -80,8 +80,22 @@
   transition: color 0.3s ease;
   line-height: 1.2;
   cursor: pointer;
+  background: none;
+  border: none;
+  outline: none;
+  box-shadow: none;
 }
 
+/* Remove unwanted white border around Logout button */
+.logout-button {
+  all: unset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* Hover & Active Styles */
 .nav-links li a:hover,
 .logout-button:hover {
   color: #3282B8;
