@@ -26,7 +26,12 @@ DEBUG_MODE = False  # Set to False in production mode
 
 app = Flask(__name__)
 app.config["MONGO_URI"] = os.environ.get("MONGO_URI")
-CORS(app, resources={r"/*": {"origins": ["https://signgenie.vercel.app"]}}, supports_credentials=True)
+CORS(app, resources={r"/*": {
+    "origins": [
+        "https://signgenie.vercel.app",
+        "http://localhost:5713"
+    ]
+}}, supports_credentials=True)
 
 # Load the ML Model
 model_path = './action.h5'
