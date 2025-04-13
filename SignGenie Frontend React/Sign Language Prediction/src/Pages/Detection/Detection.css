@@ -33,7 +33,7 @@
 
 .detection-content {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 2rem;
     max-width: 1200px;
     margin: 0 auto;
@@ -142,7 +142,7 @@
     font-size: 1rem;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.3s ease;
     border: none;
     background: rgba(221, 230, 237, 0.1);
     color: #DDE6ED;
@@ -166,7 +166,7 @@
     background: #3282B8;
 }
 
-/* Responsive Design */
+/* Responsive Design for screens below 1024px */
 @media (max-width: 1024px) {
     .detection-content {
         grid-template-columns: 1fr;
@@ -174,11 +174,12 @@
 
     .video-container,
     .prediction-output {
-        max-width: 800px;
+        max-width: 1000px;
         margin: 0 auto;
     }
 }
 
+/* Responsive Design for screens below 768px */
 @media (max-width: 768px) {
     .detection-container {
         padding: 0 1rem;
@@ -202,6 +203,6 @@
     }
 
     .predicted-text {
-        font-size: 1.5rem;
+        font-size: 1.8rem;
     }
 }
