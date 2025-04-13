@@ -66,7 +66,7 @@
   margin-bottom: 2rem;
 }
 
-.question-section,
+.question-section, 
 .video-section {
   background: rgba(221, 230, 237, 0.1);
   border-radius: 20px;
@@ -304,38 +304,30 @@
   }
 }
 
+/* RESPONSIVE DESIGN IMPROVEMENTS */
+
 @media (max-width: 1024px) {
+  /* KEYPOINT 1: Collapse grid to a single column for better layout stacking */
   .quiz-content {
     grid-template-columns: 1fr;
   }
 
-  .controls-section {
-    gap: 1.5rem;
-  }
-
+  /* KEYPOINT 2: Adapt buttons to full width for better touch usability */
   .next-button {
     width: 100%;
-    justify-content: center;
-  }
-
-  .stat-item {
-    max-width: 100%;
     justify-content: center;
   }
 }
 
 @media (max-width: 768px) {
+  /* KEYPOINT 1: Reduced padding for better mobile viewport fitting */
   .quiz-container {
     padding: 0 1rem;
   }
 
+  /* KEYPOINT 2: Adjust font sizes for smaller screens */
   .quiz-header h1 {
     font-size: 2rem;
-  }
-
-  .quiz-stats {
-    flex-direction: column;
-    gap: 1rem;
   }
 
   .stat-item {
