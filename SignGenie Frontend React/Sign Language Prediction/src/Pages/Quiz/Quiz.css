@@ -35,8 +35,12 @@
 }
 
 .stat-item {
+  flex: 1 1 200px;
+  min-width: 180px;
+  max-width: 250px;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   background: rgba(221, 230, 237, 0.1);
   padding: 0.75rem 1.5rem;
@@ -45,6 +49,8 @@
   font-family: "Poppins", sans-serif;
   font-size: 1.1rem;
   backdrop-filter: blur(10px);
+  text-align: center;
+  transition: background 0.3s ease;
 }
 
 .stat-item svg {
@@ -309,6 +315,11 @@
 
   .next-button {
     width: 100%;
+    justify-content: center;
+  }
+
+  .stat-item {
+    max-width: 100%;
     justify-content: center;
   }
 }
