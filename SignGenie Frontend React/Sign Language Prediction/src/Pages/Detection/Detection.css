@@ -106,7 +106,6 @@
 
 .predicted-text-container {
     width: 100%;
-    flex-grow: 1;
     background: rgba(221, 230, 237, 0.1);
     padding: 2rem;
     border-radius: 20px;
