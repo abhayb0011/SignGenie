@@ -8,6 +8,7 @@
   color: var(--text-color);
   font-family: "Poppins", sans-serif;
   transition: all 0.3s ease;
+  box-sizing: border-box;
 }
 
 .update-profile-container h2 {
@@ -42,6 +43,10 @@
   color: var(--text-color);
   font-size: 1rem;
   transition: border-color 0.3s ease, background-color 0.3s ease;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  text-overflow: ellipsis;
 }
 
 .update-form input:focus {
@@ -99,6 +104,11 @@
 
   .update-profile-container h2 {
     font-size: 1.5rem;
+  }
+
+  .update-form input {
+    font-size: 0.95rem;
+    padding: 0.65rem 0.85rem;
   }
 
   .submit-btn {
