@@ -6,6 +6,7 @@
   align-items: center;
   background-color: var(--background-color);
   padding: 2rem;
+  box-sizing: border-box;
 }
 
 .profile-card {
@@ -16,6 +17,7 @@
   max-width: 600px;
   width: 100%;
   color: var(--text-color);
+  transition: box-shadow 0.3s ease;
 }
 
 .profile-title {
@@ -23,6 +25,7 @@
   margin-bottom: 2rem;
   color: var(--primary-color);
   text-align: center;
+  font-weight: 700;
 }
 
 .profile-info {
@@ -40,6 +43,30 @@
   border-radius: 1rem;
   padding: 1rem 1.5rem;
   box-shadow: 0 4px 15px rgba(50, 130, 184, 0.2);
+  box-sizing: border-box;
+  flex-wrap: wrap;
+}
+
+.profile-icon,
+.emoji {
+  font-size: 1.8rem;
+  color: var(--secondary-color);
+  flex-shrink: 0;
+}
+
+.box-label {
+  font-size: 0.85rem;
+  color: var(--text-color-light);
+  min-width: 120px;
+  flex-shrink: 0;
+}
+
+.box-value {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-left: auto;
+  word-break: break-word;
 }
 
 .sign-history-list {
@@ -54,25 +81,6 @@
   margin-bottom: 0.3rem;
 }
 
-
-.profile-icon, .emoji {
-  font-size: 1.8rem;
-  color: var(--secondary-color);
-}
-
-.box-label {
-  font-size: 0.85rem;
-  color: var(--text-color-light);
-  min-width: 120px;
-}
-
-.box-value {
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--text-color);
-  margin-left: auto;
-}
-
 .update-profile-btn {
   background-color: var(--primary-color);
   color: #fff;
@@ -84,7 +92,7 @@
   cursor: pointer;
   display: block;
   margin: 0 auto;
-  transition: background 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .update-profile-btn:hover {
@@ -100,4 +108,55 @@
   align-items: center;
   color: var(--text-color-light);
   font-size: 1.3rem;
+}
+
+/* ----------- Responsive Breakpoints ----------- */
+
+@media (max-width: 1024px) {
+  .profile-card {
+    padding: 2.5rem 1.5rem;
+  }
+
+  .profile-title {
+    font-size: 1.8rem;
+  }
+
+  .box-value {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-wrapper {
+    padding: 1.5rem 1rem;
+  }
+
+  .profile-card {
+    padding: 2rem 1rem;
+  }
+
+  .profile-title {
+    font-size: 1.6rem;
+  }
+
+  .profile-box {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .box-label,
+  .box-value {
+    font-size: 0.95rem;
+  }
+
+  .update-profile-btn {
+    width: 100%;
+    font-size: 0.95rem;
+    padding: 0.75rem;
+  }
+
+  .sign-history-list {
+    font-size: 0.9rem;
+  }
 }
