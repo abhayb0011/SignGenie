@@ -389,10 +389,13 @@ def predict_frame():
             confidence = res[np.argmax(res)]
 
             # Optional: Clear sequence to avoid memory buildup
-            predict_frame.sequence_map[email] = []
+            predict_frame.sequence_map[email] = sequence[-30:]  # Retain the last 30 frames for continuous predictions
 
             # Clean up
-            del image, file, file_bytes, results, sequence, keypoints
+            try:
+                del image, file, file_bytes, results, sequence, keypoints
+            except NameError:
+                pass  # Ignore if variables do not exist
             gc.collect()
 
             return jsonify({'prediction': predicted_action, 'confidence': float(confidence)}), 200
@@ -404,7 +407,7 @@ def predict_frame():
 
     except Exception as e:
         print(f"/predict-frame error: {str(e)}")
-        traceback.print_exc()  # <-- prints full stack trace to the console
+        traceback.print_exc()  
         return jsonify({'error': 'Internal server error'}), 500
 
 
