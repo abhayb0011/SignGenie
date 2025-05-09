@@ -341,10 +341,19 @@ def token_required(f):
 
     return decorated
 
+# Initialize MediaPipe Holistic once to avoid re-initialization
+mp_holistic = mp.solutions.holistic
+mp_holistic_model = mp_holistic.Holistic(
+    static_image_mode=False,
+    min_detection_confidence=0.5,
+    min_tracking_confidence=0.5
+)
+sequence_map = {}
+
 @app.route('/predict-frame', methods=['POST'])
 def predict_frame():
     try:
-        # --- Token Validation ---
+        # --- JWT Token Validation ---
         auth_header = request.headers.get('Authorization')
         if not auth_header or not auth_header.startswith("Bearer "):
             return jsonify({"error": "Authorization token missing or invalid"}), 401
@@ -365,49 +374,37 @@ def predict_frame():
         if image is None:
             return jsonify({'error': 'Invalid image data'}), 400
 
-        # --- MediaPipe Detection ---
-        with mp_holistic.Holistic(static_image_mode=False, 
-                                  min_detection_confidence=0.5, 
-                                  min_tracking_confidence=0.5) as holistic:
-            image, results = mediapipe_detection(image, holistic)
-            keypoints = extract_keypoints(results)
+        # --- MediaPipe Keypoint Extraction ---
+        image, results = mediapipe_detection(image, mp_holistic_model)
+        keypoints = extract_keypoints(results)
 
-        # --- Sequence Handling ---
-        if not hasattr(predict_frame, 'sequence_map'):
-            predict_frame.sequence_map = {}
+        # --- Per-user Sequence Management ---
+        user_sequence = sequence_map.get(email, [])
+        user_sequence.append(keypoints)
+        user_sequence = user_sequence[-30:]  # Keep only last 30 frames
+        sequence_map[email] = user_sequence
 
-        # Maintain per-user sequence (using email)
-        sequence = predict_frame.sequence_map.get(email, [])
-        sequence.append(keypoints)
-        sequence = sequence[-30:]  # keep only last 30
-        predict_frame.sequence_map[email] = sequence  # update user-specific sequence
+        # --- Prediction Logic (Sliding Window) ---
+        if len(user_sequence) >= 30:
+            input_seq = np.expand_dims(user_sequence[-30:], axis=0)
+            res = model.predict(input_seq)[0]
 
-        if len(sequence) == 30:
-            res = model.predict(np.expand_dims(sequence, axis=0))[0]
             actions = np.array(['hello', 'my', 'name', 'Abhay', 'Soham', 'Subhadeep', 'Thank you', 'I love you'])
             predicted_action = actions[np.argmax(res)]
-            confidence = res[np.argmax(res)]
+            confidence = float(res[np.argmax(res)])
 
-            # Optional: Clear sequence to avoid memory buildup
-            predict_frame.sequence_map[email] = sequence[-30:]  # Retain the last 30 frames for continuous predictions
-
-            # Clean up
-            try:
-                del image, file, file_bytes, results, sequence, keypoints
-            except NameError:
-                pass  # Ignore if variables do not exist
             gc.collect()
-
-            return jsonify({'prediction': predicted_action, 'confidence': float(confidence)}), 200
+            return jsonify({
+                'prediction': predicted_action,
+                'confidence': confidence
+            }), 200
         else:
-            # Clean up even in waiting case
-            del image, file, file_bytes, keypoints
             gc.collect()
             return jsonify({'prediction': 'Waiting for enough frames...'}), 202
 
     except Exception as e:
-        print(f"/predict-frame error: {str(e)}")
-        traceback.print_exc()  
+        print(f"[predict-frame error] {e}")
+        traceback.print_exc()
         return jsonify({'error': 'Internal server error'}), 500
 
 
