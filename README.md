@@ -1,1 +1,1 @@
-"# SignGenie" 
+SigGenie is an innovative web application designed to bridge the communication gap for the hearing and speech-impaired community. The platform leverages real-time computer vision and deep learning to recognize Sign Language gestures using webcam input and provides an interactive learning environment for users.
