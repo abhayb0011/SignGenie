@@ -189,6 +189,45 @@
     right: 0;
   }
 
+.nav-links {
+  transition: right 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+/* Prevent content being overlapped by fixed navbar */
+body {
+  padding-top: 80px; /* Approx height of navbar */
+}
+
+/* Extra Responsive Fixes for Small Phones (max-width: 480px) */
+@media (max-width: 480px) {
+  .app-name {
+    font-size: 1.4rem;
+  }
+
+  .logo {
+    width: 45px;
+    height: 45px;
+  }
+
+  .nav-links {
+    width: 100%;
+  }
+
+  .nav-links li {
+    margin-bottom: 1rem;
+  }
+
+  .toggle-menu {
+    font-size: 2rem;
+  }
+
+  .nav-links li a,
+  .logout-button {
+    font-size: 0.95rem;
+  }
+}
+
+
   .nav-links li {
     margin-bottom: 1.5rem;
   }

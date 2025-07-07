@@ -51,7 +51,7 @@ const Navbar = () => {
         <ul className={`nav-links ${isOpen ? "open" : ""}`}>
           {isLoggedIn ? (
             <>
-              <li>
+              <li onClick={() => setIsOpen(false)}>
                 <Link
                   to="/"
                   className={location.pathname === "/" ? "active" : ""}
@@ -59,7 +59,7 @@ const Navbar = () => {
                   <CustomButton text="Home" />
                 </Link>
               </li>
-              <li>
+              <li onClick={() => setIsOpen(false)}>
                 <Link
                   to="/detection"
                   className={location.pathname === "/detection" ? "active" : ""}
@@ -67,7 +67,7 @@ const Navbar = () => {
                   <CustomButton text="Live Detection" />
                 </Link>
               </li>
-              <li>
+              <li onClick={() => setIsOpen(false)}>
                 <Link
                   to="/quiz"
                   className={location.pathname === "/quiz" ? "active" : ""}
@@ -75,7 +75,7 @@ const Navbar = () => {
                   <CustomButton text="Quiz" />
                 </Link>
               </li>
-              <li>
+              <li onClick={() => setIsOpen(false)}>
                 <Link
                   to="/dictionary"
                   className={
@@ -85,12 +85,17 @@ const Navbar = () => {
                   <CustomButton text="Dictionary" />
                 </Link>
               </li>
-              <li>
-                <button onClick={handleLogout} className="logout-button">
+              <li
+                onClick={() => {
+                  handleLogout();
+                  setIsOpen(false);
+                }}
+              >
+                <button className="logout-button">
                   <CustomButton text="Logout" />
                 </button>
               </li>
-              <li>
+              <li onClick={() => setIsOpen(false)}>
                 <Link
                   to="/profile"
                   className={location.pathname === "/profile" ? "active" : ""}
@@ -103,7 +108,7 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <li>
+              <li onClick={() => setIsOpen(false)}>
                 <Link
                   to="/login"
                   className={location.pathname === "/login" ? "active" : ""}
@@ -111,7 +116,7 @@ const Navbar = () => {
                   <CustomButton text="Login" />
                 </Link>
               </li>
-              <li>
+              <li onClick={() => setIsOpen(false)}>
                 <Link
                   to="/signup"
                   className={location.pathname === "/signup" ? "active" : ""}
