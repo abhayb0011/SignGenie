@@ -85,7 +85,7 @@ numpy
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/your‑org/signgenie.git
+git clone https://github.com/abhayb0011/signgenie.git
 cd signgenie
 ```
 
@@ -98,7 +98,7 @@ npm start
 ```
 
 * The React app will run on `http://localhost:3000` by default.
-* Configure the API base URL via `.env` (e.g. `REACT_APP_API_BASE_URL=http://localhost:8080`).
+* Configure the API base URL via `.env` (e.g. `VITE_APP_API_BASE_URL=http://localhost:8080`).
 
 ### 3. Backend
 
