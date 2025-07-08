@@ -1,4 +1,3 @@
-```markdown
 # 🤟 SignGenie
 
 > **SignGenie** is a real‑time sign language recognition web application. It uses a React frontend for user interaction, a Flask backend to serve APIs and perform inference, and a TensorFlow LSTM model trained on MediaPipe-extracted keypoints.
@@ -7,8 +6,7 @@
 
 ## 📁 Project Structure
 
-```
-
+```plaintext
 signgenie/
 ├── frontend/                 # React application
 │   ├── public/
@@ -30,17 +28,15 @@ signgenie/
 ├── backend/                  # Flask API + model inference
 │   ├── app.py                # Main Flask application
 │   ├── models/
-│   │   ├── user\_schema.py
-│   │   └── contactUsMessage\_schema.py
+│   │   ├── user_schema.py
+│   │   └── contactUsMessage_schema.py
 │   ├── db.py                 # PyMongo connection
 │   ├── action.h5             # Trained LSTM model file
 │   ├── requirements.txt
-│   └── .env                  # SECRET\_KEY, MONGO\_URI, etc.
+│   └── .env                  # SECRET_KEY, MONGO_URI, etc.
 ├── data/                     # (Optional) raw/keypoint data folders
 ├── README.md                 # ← You are here
 └── .gitignore
-
-````
 
 ---
 
