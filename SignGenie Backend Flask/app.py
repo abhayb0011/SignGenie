@@ -5,6 +5,7 @@ from flask import Flask, Response, jsonify, request
 from flask_cors import CORS
 import os
 import tensorflow as tf
+from tensorflow import keras
 from db import mongo
 import jwt
 from datetime import datetime, timezone, timedelta
@@ -29,9 +30,9 @@ app.config["MONGO_URI"] = os.environ.get("MONGO_URI")
 CORS(app, supports_credentials=True)
 
 # Load the ML Model
-model_path = './action.h5'
+model_path = './action.keras'
 if os.path.exists(model_path):
-    model = tf.keras.models.load_model(model_path)  # Load the model
+    model = keras.models.load_model(model_path)  # Load the model
 else:
     raise FileNotFoundError(f"Model file '{model_path}' not found.")
 
