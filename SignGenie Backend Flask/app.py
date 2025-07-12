@@ -66,66 +66,6 @@ def draw_styled_landmarks(image, results):
     mp_drawing.draw_landmarks(image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
     mp_drawing.draw_landmarks(image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
 
-"""
-# Generator Function for Video Streaming
-def gen():
-    global sentence
-    sequence = []
-    sentence = []
-    predictions = []
-    actions = np.array(['hello', 'my', 'name', 'Abhay', 'Soham', 'Subhadeep', 'Thank you', 'I love you'])
-    threshold = 0.74
-
-    with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
-        while True:
-            success, frame = cap.read()
-            if not success:
-                break
-
-            # MediaPipe Detection
-            image, results = mediapipe_detection(frame, holistic)
-
-            # Skip Landmark Drawing on video in Production
-            if DEBUG_MODE:
-                draw_styled_landmarks(image, results)
-
-            # Extract Keypoints
-            keypoints = extract_keypoints(results)
-            sequence.append(keypoints)
-            sequence = sequence[-30:]
-
-            # Prediction
-            if len(sequence) == 30:
-                try:
-                    res = model.predict(np.expand_dims(sequence, axis=0))[0]
-                    predicted_action = actions[np.argmax(res)]
-
-                    predictions.append(np.argmax(res))
-                    predictions = predictions[-10:]
-
-                    if np.bincount(predictions).argmax() == np.argmax(res) and res[np.argmax(res)] > threshold:
-                        if not sentence or (predicted_action != sentence[-1]):
-                            sentence = [predicted_action]
-                except Exception as e:
-                    print(f"Error in prediction: {e}")
-                    sentence = ["Error"]
-
-            # Skip Prediction printing on video in Production mode
-            if DEBUG_MODE:
-                cv2.putText(image, sentence[0] if sentence else "Waiting...", (3, 30),
-                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-
-            # Encode Frame to Byte Format
-            ret, buffer = cv2.imencode('.jpg', image)
-            frame_bytes = buffer.tobytes()
-
-            # Release Memory
-            del frame, buffer  
-
-            yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-
-"""
-
 # Flask Routes
 @app.route('/')
 def index():
@@ -389,17 +329,19 @@ def predict_frame():
             input_seq = np.expand_dims(user_sequence[-30:], axis=0)
             res = model.predict(input_seq)[0]
 
-            actions = np.array(['hello', 'my', 'name', 'Abhay', 'Soham', 'Subhadeep', 'Thank you', 'I love you'])
+            actions = ["hello", "thankyou", "I love you", "yes", "no"]
             predicted_action = actions[np.argmax(res)]
             confidence = float(res[np.argmax(res)])
 
             gc.collect()
+            del image, file_bytes, file
             return jsonify({
                 'prediction': predicted_action,
                 'confidence': confidence
             }), 200
         else:
             gc.collect()
+            del image, file_bytes, file
             return jsonify({'prediction': 'Waiting for enough frames...'}), 202
 
     except Exception as e:
