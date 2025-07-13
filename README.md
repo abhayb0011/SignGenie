@@ -166,7 +166,6 @@ If you want to retrain:
 * **Real‑time detection** of 5 predefined gestures.
 * **User accounts** with JWT auth, sign history & quiz scores.
 * **Dictionary** of all gestures (no login required).
-* **Contact Us** form saves messages to MongoDB.
 * **Responsive UI** for desktop & mobile.
 
 ---
