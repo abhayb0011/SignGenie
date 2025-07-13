@@ -425,51 +425,6 @@ def update_high_score():
         print(f"/update-high-score error: {str(e)}")
         return jsonify({'error': 'Internal server error'}), 500
 
-
-"""
-@app.route('/video')
-def video():
-    try:
-        auth_header = request.headers.get('Authorization')
-
-        if not auth_header or not auth_header.startswith("Bearer "):
-            return jsonify({"error": "Authorization header missing or invalid"}), 401
-
-        token = auth_header.split(" ")[1]
-        email = verify_token(token)
-
-        if not email:
-            return jsonify({"error": "Invalid or expired token"}), 401
-
-        return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
-    except Exception as e:
-        print(f"/video error: {e}")
-        return jsonify({"error": "Internal server error"}), 500
-
-
-@app.route('/prediction')
-def prediction():
-    global sentence
-    try:
-        auth_header = request.headers.get('Authorization')
-
-        if not auth_header or not auth_header.startswith("Bearer "):
-            return jsonify({"error": "Authorization token missing or invalid"}), 401
-
-        token = auth_header.split(" ")[1]
-        email = verify_token(token)
-
-        if not email:
-            return jsonify({"error": "Invalid or expired token"}), 401
-
-        prediction_text = sentence[0] if sentence else "Waiting..."
-        return jsonify({'prediction': prediction_text}), 200
-
-    except Exception as e:
-        print(f"/prediction error: {e}")
-        return jsonify({'error': 'Internal server error'}), 500
-
-"""
 @app.route('/contact', methods=['POST'])
 def contact_us():
     try:
