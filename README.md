@@ -34,7 +34,7 @@ signgenie/
 │   ├── action.h5             # Trained LSTM model file
 │   ├── requirements.txt
 │   └── .env                  # SECRET_KEY, MONGO_URI, etc.
-├── data/                     # (Optional) raw/keypoint data folders
+├── sign language improved model/                     # contains code for model training
 ├── README.md                 # ← You are here
 └── .gitignore
 
@@ -52,8 +52,8 @@ signgenie/
    - Public `/signs` endpoint for dictionary data.
 3. **Model (TensorFlow + MediaPipe + LSTM)**  
    - MediaPipe Holistic to extract 258 keypoints per frame (pose + hands).  
-   - LSTM network (3 layers + Dense) trained on 8 gesture classes.  
-   - Sequence length: 30 frames; sequences per action: 90.
+   - LSTM network (4 layers + Dense) trained on 5 gesture classes.  
+   - Sequence length: 30 frames; sequences per action: 40.
 
 ---
 
@@ -136,6 +136,7 @@ If you want to retrain:
    model = Sequential([
      LSTM(64, return_sequences=True, activation='relu', input_shape=(30,258)),
      LSTM(128, return_sequences=True, activation='relu'),
+     LSTM(128, return_sequences=True, activation='relu'),
      LSTM(64, return_sequences=False, activation='relu'),
      Dense(64, activation='relu'),
      Dense(32, activation='relu'),
@@ -162,7 +163,7 @@ If you want to retrain:
 
 ## 🎯 Features
 
-* **Real‑time detection** of 8 predefined gestures.
+* **Real‑time detection** of 5 predefined gestures.
 * **User accounts** with JWT auth, sign history & quiz scores.
 * **Dictionary** of all gestures (no login required).
 * **Contact Us** form saves messages to MongoDB.
