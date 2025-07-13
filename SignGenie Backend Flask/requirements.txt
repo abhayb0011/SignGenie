@@ -4,7 +4,7 @@ certifi==2025.7.9
 cffi==1.17.1
 charset-normalizer==3.4.2
 flatbuffers==25.2.10
-flask_pymongo==4.7.1
+flask_pymongo==3.0.1
 gast==0.4.0
 google-auth==2.40.3
 google-auth-oauthlib==1.0.0
