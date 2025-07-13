@@ -3,18 +3,11 @@ import numpy as np
 import mediapipe as mp
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-import traceback
-import gc
-import numpy as np
-import cv2
-from collections import Counter
 import os
 import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras.models import load_model
 from db import mongo
 import jwt
-import time
 from datetime import datetime, timezone, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
@@ -22,8 +15,8 @@ from models.user_schema import create_user_document
 from models.contactUsMessage_schema import create_contact_message_document
 from waitress import serve
 from dotenv import load_dotenv
-import gc
-from waitress import serve
+import traceback
+#from waitress import serve
 
 load_dotenv()  # load variables from .env
 
@@ -36,19 +29,9 @@ app.config["MONGO_URI"] = os.environ.get("MONGO_URI")
 CORS(app, supports_credentials=True)
 
 # Load the ML Model
-model_path = './action.h5'
+model_path = './action.h5' 
 if os.path.exists(model_path):
-    print(f"Attempting to load model from '{model_path}'...")
-    try:
-        model = keras.models.load_model(model_path)
-        print("Model loaded successfully from .h5!")
-        # You can now use your 'model' object
-        # Example: predictions = model.predict(your_input_data)
-    except Exception as e:
-        print(f"Error loading model from {model_path}: {e}")
-        print("This could be due to version mismatch or other serialization issues.")
-        print("Consider trying to define the model architecture in code and load only weights if this persists.")
-        raise e # Re-raise the exception after printing helpful messages
+    model = keras.models.load_model(model_path)  # Load the model
 else:
     raise FileNotFoundError(f"Model file '{model_path}' not found.")
 
@@ -300,102 +283,103 @@ mp_holistic_model = mp_holistic.Holistic(
     min_detection_confidence=0.5,
     min_tracking_confidence=0.5
 )
-# --- Global per-user state ---
-sequence_map   = {}  # email → list of last frame keypoint arrays
-prediction_map = {}  # email → list of last few predicted labels
-last_seen = {}      # email → timestamp (seconds since epoch)
 
-# --- Configuration constants ---
-SLIDING_WINDOW       = 30
-HOP_SIZE             = 15
-SMOOTHING_WINDOW     = 5
-MIN_PREDICTION_COUNT = 3
-CONFIDENCE_THRESHOLD = 0.8
-STALE_TIMEOUT = 60  # seconds of inactivity before we clear a user’s buffers
+# per-user buffers & state
+sequence_map = {}   # email → list of last 30 keypoint arrays
+user_state   = {}   # email → {
+                    #    "last_displayed": str or None,
+                    #    "candidate":      str or None,
+                    #    "count":          int
+                    # }
 
-# list of action labels in the same order as your model’s output
+# config
+WINDOW_LEN           = 30
+CONFIDENCE_THRESHOLD = 0.6
+REQUIRED_CONS_COUNT  = 3
+
 ACTIONS = ["hello", "thankyou", "I love you", "yes", "no"]
 
 @app.route('/predict-frame', methods=['POST'])
 def predict_frame():
     try:
-        # ——— Authentication as before ———
+        # 1) Auth
         auth = request.headers.get('Authorization', '')
         if not auth.startswith("Bearer "):
-            return jsonify({'error': 'Authorization token missing or invalid'}), 401
-        token = auth.split(" ", 1)[1]
+            return jsonify({'error':'Missing/invalid token'}), 401
+        token = auth.split(" ",1)[1]
         email = verify_token(token)
         if not email:
-            return jsonify({'error': 'Invalid or expired token'}), 401
+            return jsonify({'error':'Invalid or expired token'}), 401
 
-        # ———  NEW: update last_seen and purge stale users ———
-        now = time.time()
-        last_seen[email] = now
-
-        # find emails inactive longer than STALE_TIMEOUT
-        stale_users = [user for user, ts in last_seen.items() if now - ts > STALE_TIMEOUT]
-        for stale in stale_users:
-            sequence_map.pop(stale, None)
-            prediction_map.pop(stale, None)
-            last_seen.pop(stale, None)
-
-        # ——— Image loading & keypoint extraction as before ———
+        # 2) Read image
         if 'image' not in request.files:
-            return jsonify({'error': 'No image file provided'}), 400
+            return jsonify({'error':'No image provided'}), 400
         file_bytes = np.frombuffer(request.files['image'].read(), np.uint8)
-        image = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
-        if image is None:
-            return jsonify({'error': 'Invalid image data'}), 400
-        image, results = mediapipe_detection(image, mp_holistic_model)
-        keypoints = extract_keypoints(results)
+        img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
+        if img is None:
+            return jsonify({'error':'Invalid image'}), 400
 
-        # ——— Buffer update ———
+        # 3) Keypoint extraction
+        img, results = mediapipe_detection(img, mp_holistic_model)
+        kp = extract_keypoints(results)
+
+        # 4) Update frame buffer
         seq = sequence_map.setdefault(email, [])
-        seq.append(keypoints)
-        seq = seq[-SLIDING_WINDOW:]
+        seq.append(kp)
+        if len(seq) > WINDOW_LEN:
+            seq.pop(0)
         sequence_map[email] = seq
 
-        # ——— Hopped-window + smoothing logic as before ———
-        if len(seq) >= SLIDING_WINDOW and len(seq) % HOP_SIZE == 0:
-            input_seq = np.expand_dims(seq, axis=0)
-            res = model.predict(input_seq, verbose=0)[0]
-            pred_idx, confidence = int(np.argmax(res)), float(np.max(res))
-
-            # Confidence gate
-            if confidence < CONFIDENCE_THRESHOLD:
-                return jsonify({
-                    'prediction': 'Waiting for clear signal...',
-                    'confidence': confidence
-                }), 202
-
-            # Smoothing history
-            hist = prediction_map.setdefault(email, [])
-            hist.append(ACTIONS[pred_idx])
-            hist = hist[-SMOOTHING_WINDOW:]
-            prediction_map[email] = hist
-
-            # Vote threshold
-            most_common, count = Counter(hist).most_common(1)[0]
-            if count >= MIN_PREDICTION_COUNT:
-                prediction_map[email] = []  # reset for next sign
-                return jsonify({
-                    'prediction': most_common,
-                    'confidence': confidence
-                }), 200
+        # 5) Only predict once we have WINDOW_LEN frames
+        if len(seq) < WINDOW_LEN:
+            # on cold start, show waiting once; store in state so you don't repeat
+            st = user_state.setdefault(email, {'last_displayed': None, 'candidate': None, 'count': 0})
+            if st['last_displayed'] is None:
+                st['last_displayed'] = 'Waiting for enough frames...'
+                return jsonify({'prediction': st['last_displayed'], 'confidence': 0.0}), 202
             else:
-                return jsonify({
-                    'prediction': 'Waiting for stable prediction...',
-                    'confidence': confidence
-                }), 202
+                return jsonify({'prediction': st['last_displayed'], 'confidence': 0.0}), 202
 
-        # Not enough frames or not on hop boundary yet
-        return jsonify({'prediction': 'Waiting for enough frames...'}), 202
+        # 6) Run model
+        input_seq = np.expand_dims(seq, axis=0)  # shape (1,30,features)
+        res       = model.predict(input_seq, verbose=0)[0]
+        idx       = int(np.argmax(res))
+        conf      = float(np.max(res))
+        label     = ACTIONS[idx]
+
+        st = user_state.setdefault(email, {'last_displayed': None, 'candidate': None, 'count': 0})
+
+        # 7) Confidence gate
+        if conf < CONFIDENCE_THRESHOLD:
+            # too low: just return last displayed
+            return jsonify({'prediction': st['last_displayed'], 'confidence': conf}), 202
+
+        # 8) Candidate counting
+        if st['candidate'] == label:
+            st['count'] += 1
+        else:
+            st['candidate'] = label
+            st['count']     = 1
+
+        # 9) Emit when stable
+        if st['count'] >= REQUIRED_CONS_COUNT:
+            # switch to new sign
+            st['last_displayed'] = label
+            # reset for next detection
+            st['candidate'], st['count'] = None, 0
+            # clear buffer so next sign starts fresh
+            sequence_map[email] = []
+            return jsonify({'prediction': label, 'confidence': conf}), 200
+
+        # 10) otherwise: still collecting, return last_displayed
+        return jsonify({'prediction': st['last_displayed'], 'confidence': conf}), 202
 
     except Exception as e:
         print(f"[predict-frame error] {e}")
         traceback.print_exc()
-        return jsonify({'error': 'Internal server error'}), 500
-    
+        return jsonify({'error':'Internal server error'}), 500
+
+
 @app.route('/sign-history', methods=['POST'])
 def update_sign_history():
     try:
