@@ -1,11 +1,12 @@
 import cv2
 import numpy as np
 import mediapipe as mp
-from flask import Flask, Response, jsonify, request
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 import os
 import tensorflow as tf
 from tensorflow import keras
+from tensorflow.keras.models import load_model
 from db import mongo
 import jwt
 from datetime import datetime, timezone, timedelta
@@ -30,9 +31,19 @@ app.config["MONGO_URI"] = os.environ.get("MONGO_URI")
 CORS(app, supports_credentials=True)
 
 # Load the ML Model
-model_path = './action.keras'
+model_path = './action.h5'
 if os.path.exists(model_path):
-    model = keras.models.load_model(model_path)  # Load the model
+    print(f"Attempting to load model from '{model_path}'...")
+    try:
+        model = keras.models.load_model(model_path)
+        print("Model loaded successfully from .h5!")
+        # You can now use your 'model' object
+        # Example: predictions = model.predict(your_input_data)
+    except Exception as e:
+        print(f"Error loading model from {model_path}: {e}")
+        print("This could be due to version mismatch or other serialization issues.")
+        print("Consider trying to define the model architecture in code and load only weights if this persists.")
+        raise e # Re-raise the exception after printing helpful messages
 else:
     raise FileNotFoundError(f"Model file '{model_path}' not found.")
 
