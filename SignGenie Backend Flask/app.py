@@ -3,22 +3,27 @@ import numpy as np
 import mediapipe as mp
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+import traceback
+import gc
+import numpy as np
+import cv2
+from collections import Counter
 import os
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.models import load_model
 from db import mongo
 import jwt
+import time
 from datetime import datetime, timezone, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from models.user_schema import create_user_document
 from models.contactUsMessage_schema import create_contact_message_document
 from waitress import serve
-
 from dotenv import load_dotenv
 import gc
-#from waitress import serve
+from waitress import serve
 
 load_dotenv()  # load variables from .env
 
@@ -295,68 +300,101 @@ mp_holistic_model = mp_holistic.Holistic(
     min_detection_confidence=0.5,
     min_tracking_confidence=0.5
 )
-sequence_map = {}
+# --- Global per-user state ---
+sequence_map   = {}  # email → list of last frame keypoint arrays
+prediction_map = {}  # email → list of last few predicted labels
+last_seen = {}      # email → timestamp (seconds since epoch)
+
+# --- Configuration constants ---
+SLIDING_WINDOW       = 30
+HOP_SIZE             = 15
+SMOOTHING_WINDOW     = 5
+MIN_PREDICTION_COUNT = 3
+CONFIDENCE_THRESHOLD = 0.8
+STALE_TIMEOUT = 60  # seconds of inactivity before we clear a user’s buffers
+
+# list of action labels in the same order as your model’s output
+ACTIONS = ["hello", "thankyou", "I love you", "yes", "no"]
 
 @app.route('/predict-frame', methods=['POST'])
 def predict_frame():
     try:
-        # --- JWT Token Validation ---
-        auth_header = request.headers.get('Authorization')
-        if not auth_header or not auth_header.startswith("Bearer "):
-            return jsonify({"error": "Authorization token missing or invalid"}), 401
-
-        token = auth_header.split(" ")[1]
+        # ——— Authentication as before ———
+        auth = request.headers.get('Authorization', '')
+        if not auth.startswith("Bearer "):
+            return jsonify({'error': 'Authorization token missing or invalid'}), 401
+        token = auth.split(" ", 1)[1]
         email = verify_token(token)
         if not email:
-            return jsonify({"error": "Invalid or expired token"}), 401
+            return jsonify({'error': 'Invalid or expired token'}), 401
 
-        # --- Image Parsing ---
+        # ———  NEW: update last_seen and purge stale users ———
+        now = time.time()
+        last_seen[email] = now
+
+        # find emails inactive longer than STALE_TIMEOUT
+        stale_users = [user for user, ts in last_seen.items() if now - ts > STALE_TIMEOUT]
+        for stale in stale_users:
+            sequence_map.pop(stale, None)
+            prediction_map.pop(stale, None)
+            last_seen.pop(stale, None)
+
+        # ——— Image loading & keypoint extraction as before ———
         if 'image' not in request.files:
             return jsonify({'error': 'No image file provided'}), 400
-
-        file = request.files['image']
-        file_bytes = np.frombuffer(file.read(), np.uint8)
+        file_bytes = np.frombuffer(request.files['image'].read(), np.uint8)
         image = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
-
         if image is None:
             return jsonify({'error': 'Invalid image data'}), 400
-
-        # --- MediaPipe Keypoint Extraction ---
         image, results = mediapipe_detection(image, mp_holistic_model)
         keypoints = extract_keypoints(results)
 
-        # --- Per-user Sequence Management ---
-        user_sequence = sequence_map.get(email, [])
-        user_sequence.append(keypoints)
-        user_sequence = user_sequence[-30:]  # Keep only last 30 frames
-        sequence_map[email] = user_sequence
+        # ——— Buffer update ———
+        seq = sequence_map.setdefault(email, [])
+        seq.append(keypoints)
+        seq = seq[-SLIDING_WINDOW:]
+        sequence_map[email] = seq
 
-        # --- Prediction Logic (Sliding Window) ---
-        if len(user_sequence) >= 30:
-            input_seq = np.expand_dims(user_sequence[-30:], axis=0)
-            res = model.predict(input_seq)[0]
+        # ——— Hopped-window + smoothing logic as before ———
+        if len(seq) >= SLIDING_WINDOW and len(seq) % HOP_SIZE == 0:
+            input_seq = np.expand_dims(seq, axis=0)
+            res = model.predict(input_seq, verbose=0)[0]
+            pred_idx, confidence = int(np.argmax(res)), float(np.max(res))
 
-            actions = ["hello", "thankyou", "I love you", "yes", "no"]
-            predicted_action = actions[np.argmax(res)]
-            confidence = float(res[np.argmax(res)])
+            # Confidence gate
+            if confidence < CONFIDENCE_THRESHOLD:
+                return jsonify({
+                    'prediction': 'Waiting for clear signal...',
+                    'confidence': confidence
+                }), 202
 
-            gc.collect()
-            del image, file_bytes, file
-            return jsonify({
-                'prediction': predicted_action,
-                'confidence': confidence
-            }), 200
-        else:
-            gc.collect()
-            del image, file_bytes, file
-            return jsonify({'prediction': 'Waiting for enough frames...'}), 202
+            # Smoothing history
+            hist = prediction_map.setdefault(email, [])
+            hist.append(ACTIONS[pred_idx])
+            hist = hist[-SMOOTHING_WINDOW:]
+            prediction_map[email] = hist
+
+            # Vote threshold
+            most_common, count = Counter(hist).most_common(1)[0]
+            if count >= MIN_PREDICTION_COUNT:
+                prediction_map[email] = []  # reset for next sign
+                return jsonify({
+                    'prediction': most_common,
+                    'confidence': confidence
+                }), 200
+            else:
+                return jsonify({
+                    'prediction': 'Waiting for stable prediction...',
+                    'confidence': confidence
+                }), 202
+
+        # Not enough frames or not on hop boundary yet
+        return jsonify({'prediction': 'Waiting for enough frames...'}), 202
 
     except Exception as e:
         print(f"[predict-frame error] {e}")
         traceback.print_exc()
         return jsonify({'error': 'Internal server error'}), 500
-
-
     
 @app.route('/sign-history', methods=['POST'])
 def update_sign_history():
